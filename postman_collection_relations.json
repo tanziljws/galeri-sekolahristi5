@@ -1,0 +1,142 @@
+{
+	"info": {
+		"_postman_id": "galeri-sekolahristi-relations-api",
+		"name": "Galeri Sekolah Risti - Complete Relations API",
+		"description": "Collection untuk testing API dengan relasi lengkap antar semua tabel",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔗 All Data with Complete Relations",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/all-data-with-relations",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"all-data-with-relations"
+					]
+				},
+				"description": "Mengambil SEMUA data dari SEMUA tabel dengan relasi lengkap:\n\n📊 Users → Profile\n👨‍💼 Petugas → Posts + Profile\n🏷️ Kategori → Posts\n📝 Posts → Kategori + Petugas + Galeries + Fotos\n👤 Profiles → User + Petugas\n🖼️ Galeries → Post + Kategori + Petugas + Fotos\n📸 Fotos → Galery + Post + Kategori + Petugas\n\nIni adalah API UTAMA yang mengambil semua data sekaligus!"
+			},
+			"response": []
+		},
+		{
+			"name": "🏫 School Data Structure",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/school-data-structure",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"school-data-structure"
+					]
+				},
+				"description": "Mengambil struktur data sekolah yang terorganisir:\n\n🏫 School Info (nama sekolah, deskripsi)\n👥 Users dengan Profile\n👨‍💼 Staff (Petugas) dengan Posts + Profile\n📚 Content (Kategori + Posts) dengan relasi lengkap\n🖼️ Media (Galeries + Fotos) dengan relasi lengkap\n👤 Profiles dengan User + Petugas"
+			},
+			"response": []
+		},
+		{
+			"name": "🔗 Data by Specific Relationships",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/data-by-relationships",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"data-by-relationships"
+					]
+				},
+				"description": "Mengambil data berdasarkan relasi spesifik:\n\n📝 Posts dengan Kategori + Petugas + Profile + Galeries + Fotos\n🖼️ Galeries dengan Post + Kategori + Petugas + Profile + Fotos\n📸 Fotos dengan Galery + Post + Kategori + Petugas + Profile\n👥 Users dengan Profile\n👨‍💼 Petugas dengan Posts + Kategori + Galeries + Fotos + Profile\n🏷️ Kategori dengan Posts + Petugas + Profile + Galeries + Fotos"
+			},
+			"response": []
+		},
+		{
+			"name": "📊 Dashboard Summary with Relations",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/dashboard-summary",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"dashboard-summary"
+					]
+				},
+				"description": "Mengambil ringkasan dashboard dengan relasi:\n\n📊 Overview (total semua tabel)\n🕒 Recent Activities (posts, galeries, fotos terbaru)\n📈 Content Distribution (posts per kategori, galeries per post, fotos per galery)\n👨‍💼 Staff Contributions (posts per petugas, top contributors)"
+			},
+			"response": []
+		},
+		{
+			"name": "🗂️ Table Relationships Structure",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/table-relationships",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"table-relationships"
+					]
+				},
+				"description": "Mengambil struktur relasi antar tabel:\n\n🗂️ Table Structure (relasi has_one, has_many, belongs_to)\n📋 Fields yang tersedia di setiap tabel\n🔗 Data dengan relasi lengkap untuk setiap tabel\n\nIni berguna untuk memahami struktur database dan relasi antar tabel!"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,41 @@
+{
+  "info": {
+    "name": "Galeri Sekolah Risti API (Semua Tabel & Relasi)",
+    "_postman_id": "7f9d0a51-risti-collection",
+    "description": "Endpoints untuk users, petugas, kategori, posts, galery, foto, profile + relasi.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    { "name": "Users - GET", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/users" } },
+    { "name": "Users - POST", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Admin Baru\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}" }, "url": "{{baseUrl}}/api/users" } },
+
+    { "name": "Petugas - GET", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/petugas" } },
+    { "name": "Petugas - POST", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"petugas_baru\",\n  \"email\": \"petugas@example.com\",\n  \"password\": \"password123\"\n}" }, "url": "{{baseUrl}}/api/petugas" } },
+
+    { "name": "Kategori - GET", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/kategori" } },
+    { "name": "Kategori - POST", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"judul\": \"Kegiatan Sekolah\"\n}" }, "url": "{{baseUrl}}/api/kategori" } },
+
+    { "name": "Posts - GET", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/posts" } },
+    { "name": "Posts - POST", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"judul\": \"Artikel Baru\",\n  \"isi\": \"Isi artikel\",\n  \"status\": \"published\",\n  \"kategori_id\": 1,\n  \"petugas_id\": 1\n}" }, "url": "{{baseUrl}}/api/posts" } },
+
+    { "name": "Profile - GET", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/profiles" } },
+    { "name": "Profile - POST", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"judul\": \"Profil Sekolah\",\n  \"isi\": \"Deskripsi profil sekolah\"\n}" }, "url": "{{baseUrl}}/api/profiles" } },
+
+    { "name": "Galery - GET", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/galeries" } },
+    { "name": "Galery - POST", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"post_id\": 1,\n  \"position\": 1,\n  \"status\": 1\n}" }, "url": "{{baseUrl}}/api/galeries" } },
+
+    { "name": "Foto - GET", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/fotos" } },
+    { "name": "Foto - POST", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"judul\": \"Foto Upacara\",\n  \"galery_id\": 1,\n  \"file\": \"upacara_bendera_1.jpg\"\n}" }, "url": "{{baseUrl}}/api/fotos" } },
+
+    { "name": "Relasi - All Data With Relations (GET)", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/all-data-with-relations" } },
+    { "name": "Relasi - Data By Relationships (GET)", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/data-by-relationships" } },
+    { "name": "Relasi - Posts with All Relations (GET)", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/posts-with-all-relations" } },
+    { "name": "Relasi - Galeries with All Relations (GET)", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/galeries-with-all-relations" } },
+    { "name": "Relasi - Fotos with All Relations (GET)", "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/api/fotos-with-all-relations" } },
+
+    { "name": "Create Post + Galery + Fotos (POST)", "request": { "method": "POST", "header": [{ "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"post\": {\n    \"judul\": \"Kegiatan Senam\",\n    \"isi\": \"Senam bersama di lapangan\",\n    \"status\": \"published\",\n    \"kategori_id\": 1,\n    \"petugas_id\": 1\n  },\n  \"galery\": {\n    \"position\": 1,\n    \"status\": 1\n  },\n  \"fotos\": [\n    { \"judul\": \"Senam 1\", \"file\": \"senam1.jpg\" },\n    { \"judul\": \"Senam 2\", \"file\": \"senam2.jpg\" }\n  ]\n}" }, "url": "{{baseUrl}}/api/posts-with-galery-fotos" } }
+  ],
+  "variable": [ { "key": "baseUrl", "value": "http://127.0.0.1:8000" } ]
+}
+
+

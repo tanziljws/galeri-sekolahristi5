@@ -1,0 +1,143 @@
+{
+  "info": {
+    "name": "SMKN4 API (Dynamic User & Petugas Flow)",
+    "description": "Collection with dynamic email for user creation, auth seed-admin/login, and auto-saved IDs for chained requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api", "type": "string" },
+    { "key": "user_id", "value": "1", "type": "string" },
+    { "key": "petugas_id", "value": "1", "type": "string" },
+    { "key": "kategori_id", "value": "1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth (Petugas)",
+      "item": [
+        {
+          "name": "POST - Seed Default Admin (admin/123)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.success && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('petugas_id', String(res.data.id));",
+                  "  console.log('Saved petugas_id:', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{base_url}}/auth/seed-admin", "host": ["{{base_url}}"], "path": ["auth","seed-admin"] }
+          }
+        },
+        {
+          "name": "POST - Login (username/password)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"123\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth","login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Petugas (Dynamic)",
+      "item": [
+        { "name": "GET - All Petugas", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/petugas", "host": ["{{base_url}}"], "path": ["petugas"] } } },
+        { "name": "POST - Create Petugas", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@smkn4bogor.sch.id\",\n  \"password\": \"123\"\n}" }, "url": { "raw": "{{base_url}}/petugas", "host": ["{{base_url}}"], "path": ["petugas"] } } },
+        { "name": "PUT - Update Petugas {{petugas_id}}", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin2\",\n  \"email\": \"admin2@smkn4bogor.sch.id\",\n  \"password\": \"123\"\n}" }, "url": { "raw": "{{base_url}}/petugas/{{petugas_id}}", "host": ["{{base_url}}"], "path": ["petugas","{{petugas_id}}"] } } },
+        { "name": "DELETE - Delete Petugas {{petugas_id}}", "request": { "method": "DELETE", "header": [], "url": { "raw": "{{base_url}}/petugas/{{petugas_id}}", "host": ["{{base_url}}"], "path": ["petugas","{{petugas_id}}"] } } }
+      ]
+    },
+    {
+      "name": "Kategori (Dynamic)",
+      "item": [
+        {
+          "name": "POST - Create Kategori & Save ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.variables.set('kategori_judul', `Kategori ${ts}`);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.success && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('kategori_id', String(res.data.id));",
+                  "  console.log('Saved kategori_id:', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"judul\": \"{{kategori_judul}}\"\n}" },
+            "url": { "raw": "{{base_url}}/kategori", "host": ["{{base_url}}"], "path": ["kategori"] }
+          }
+        },
+        { "name": "GET - Kategori by {{kategori_id}}", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/kategori/{{kategori_id}}", "host": ["{{base_url}}"], "path": ["kategori","{{kategori_id}}"] } } },
+        { "name": "PUT - Update Kategori {{kategori_id}}", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"judul\": \"Kategori Diupdate\"\n}" }, "url": { "raw": "{{base_url}}/kategori/{{kategori_id}}", "host": ["{{base_url}}"], "path": ["kategori","{{kategori_id}}"] } } },
+        { "name": "DELETE - Delete Kategori {{kategori_id}}", "request": { "method": "DELETE", "header": [], "url": { "raw": "{{base_url}}/kategori/{{kategori_id}}", "host": ["{{base_url}}"], "path": ["kategori","{{kategori_id}}"] } } }
+      ]
+    },
+    {
+      "name": "Posts (Dynamic)",
+      "item": [
+        {
+          "name": "POST - Create Post (uses {{kategori_id}} & {{petugas_id}})",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"judul\": \"Post Dinamis\",\n  \"isi\": \"Isi konten...\",\n  \"status\": \"published\",\n  \"kategori_id\": {{kategori_id}},\n  \"petugas_id\": {{petugas_id}}\n}" },
+            "url": { "raw": "{{base_url}}/posts", "host": ["{{base_url}}"], "path": ["posts"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Dynamic)",
+      "item": [
+        {
+          "name": "POST - Create User (dynamic email)",
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [ "const ts = Date.now();", "pm.variables.set('dynamic_email', `admin.${ts}@example.com`);" ], "type": "text/javascript" } },
+            { "listen": "test", "script": { "exec": [ "const res = pm.response.json();", "if (res && res.success && res.data && res.data.id) {", "  pm.collectionVariables.set('user_id', String(res.data.id));", "  console.log('Saved user_id:', res.data.id);", "}" ], "type": "text/javascript" } }
+          ],
+          "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Admin Dynamic\",\n  \"email\": \"{{dynamic_email}}\",\n  \"password\": \"secret123\"\n}" }, "url": { "raw": "{{base_url}}/users", "host": ["{{base_url}}"], "path": ["users"] } }
+        },
+        { "name": "GET - All Users", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/users", "host": ["{{base_url}}"], "path": ["users"] } } },
+        { "name": "GET - User by {{user_id}}", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["users","{{user_id}}"] } } },
+        { "name": "PUT - Update User {{user_id}}", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Admin Updated\",\n  \"email\": \"update.{{dynamic_email}}\",\n  \"password\": \"secret456\"\n}" }, "url": { "raw": "{{base_url}}/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["users","{{user_id}}"] } } },
+        { "name": "GET - User's Posts {{user_id}}", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/users/{{user_id}}/posts", "host": ["{{base_url}}"], "path": ["users","{{user_id}}","posts"] } } },
+        { "name": "DELETE - Delete User {{user_id}}", "request": { "method": "DELETE", "header": [], "url": { "raw": "{{base_url}}/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["users","{{user_id}}"] } } }
+      ]
+    },
+    {
+      "name": "Smoke Tests (Other Tables)",
+      "item": [
+        { "name": "GET - Galeries", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/galeries", "host": ["{{base_url}}"], "path": ["galeries"] } } },
+        { "name": "GET - Fotos", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/fotos", "host": ["{{base_url}}"], "path": ["fotos"] } } },
+        { "name": "GET - Profiles", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/profiles", "host": ["{{base_url}}"], "path": ["profiles"] } } }
+      ]
+    }
+  ]
+}

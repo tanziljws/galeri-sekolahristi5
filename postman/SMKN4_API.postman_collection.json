@@ -1,0 +1,135 @@
+{
+  "info": {
+    "name": "SMK Negeri 4 Kota Bogor API",
+    "description": "Postman collection for testing all API endpoints (users, petugas, kategori, posts, profiles, galeries, fotos, jurusan-activities, school-galleries, utility).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {"name":"GET - All Users","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/users","host":["{{base_url}}"],"path":["users"]}}},
+        {"name":"GET - User by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/users/1","host":["{{base_url}}"],"path":["users","1"]}}},
+        {"name":"POST - Create User","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"secret123\"\n}"},"url":{"raw":"{{base_url}}/users","host":["{{base_url}}"],"path":["users"]}}},
+        {"name":"PUT - Update User","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Admin Update\",\n  \"email\": \"admin.update@example.com\",\n  \"password\": \"secret456\"\n}"},"url":{"raw":"{{base_url}}/users/1","host":["{{base_url}}"],"path":["users","1"]}}},
+        {"name":"DELETE - Delete User","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/users/1","host":["{{base_url}}"],"path":["users","1"]}}},
+        {"name":"GET - User's Posts","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/users/1/posts","host":["{{base_url}}"],"path":["users","1","posts"]}}}
+      ]
+    },
+    {
+      "name": "Petugas",
+      "item": [
+        {"name":"GET - All Petugas","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/petugas","host":["{{base_url}}"],"path":["petugas"]}}},
+        {"name":"GET - Petugas by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/petugas/1","host":["{{base_url}}"],"path":["petugas","1"]}}},
+        {"name":"POST - Create Petugas","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"username\": \"admin1\",\n  \"email\": \"admin1@smkn4bogor.sch.id\",\n  \"password\": \"secret123\"\n}"},"url":{"raw":"{{base_url}}/petugas","host":["{{base_url}}"],"path":["petugas"]}}},
+        {"name":"PUT - Update Petugas","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"username\": \"admin2\",\n  \"email\": \"admin2@smkn4bogor.sch.id\",\n  \"password\": \"secret456\"\n}"},"url":{"raw":"{{base_url}}/petugas/1","host":["{{base_url}}"],"path":["petugas","1"]}}},
+        {"name":"DELETE - Delete Petugas","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/petugas/1","host":["{{base_url}}"],"path":["petugas","1"]}}},
+        {"name":"GET - Petugas's Posts","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/petugas/1/posts","host":["{{base_url}}"],"path":["petugas","1","posts"]}}}
+      ]
+    },
+    {
+      "name": "Kategori",
+      "item": [
+        {"name":"GET - All Kategori","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/kategori","host":["{{base_url}}"],"path":["kategori"]}}},
+        {"name":"GET - Kategori by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/kategori/1","host":["{{base_url}}"],"path":["kategori","1"]}}},
+        {"name":"POST - Create Kategori","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Berita Sekolah\"\n}"},"url":{"raw":"{{base_url}}/kategori","host":["{{base_url}}"],"path":["kategori"]}}},
+        {"name":"PUT - Update Kategori","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Pengumuman\"\n}"},"url":{"raw":"{{base_url}}/kategori/1","host":["{{base_url}}"],"path":["kategori","1"]}}},
+        {"name":"DELETE - Delete Kategori","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/kategori/1","host":["{{base_url}}"],"path":["kategori","1"]}}},
+        {"name":"GET - Kategori's Posts","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/kategori/1/posts","host":["{{base_url}}"],"path":["kategori","1","posts"]}}}
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {"name":"GET - All Posts","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/posts","host":["{{base_url}}"],"path":["posts"]}}},
+        {"name":"GET - Post by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/posts/1","host":["{{base_url}}"],"path":["posts","1"]}}},
+        {"name":"POST - Create Post","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Judul Artikel\",\n  \"isi\": \"Isi artikel...\",\n  \"status\": \"published\",\n  \"kategori_id\": 1,\n  \"petugas_id\": 1\n}"},"url":{"raw":"{{base_url}}/posts","host":["{{base_url}}"],"path":["posts"]}}},
+        {"name":"PUT - Update Post","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Judul Update\",\n  \"isi\": \"Isi update...\",\n  \"status\": \"draft\",\n  \"kategori_id\": 2,\n  \"petugas_id\": 1\n}"},"url":{"raw":"{{base_url}}/posts/1","host":["{{base_url}}"],"path":["posts","1"]}}},
+        {"name":"DELETE - Delete Post","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/posts/1","host":["{{base_url}}"],"path":["posts","1"]}}},
+        {"name":"GET - Post's Galeries","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/posts/1/galeries","host":["{{base_url}}"],"path":["posts","1","galeries"]}}}
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {"name":"GET - All Profiles","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/profiles","host":["{{base_url}}"],"path":["profiles"]}}},
+        {"name":"GET - Profile by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/profiles/1","host":["{{base_url}}"],"path":["profiles","1"]}}},
+        {"name":"POST - Create Profile","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Tentang Sekolah\",\n  \"isi\": \"Deskripsi sekolah...\"\n}"},"url":{"raw":"{{base_url}}/profiles","host":["{{base_url}}"],"path":["profiles"]}}},
+        {"name":"PUT - Update Profile","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Tentang (Update)\",\n  \"isi\": \"Deskripsi update...\"\n}"},"url":{"raw":"{{base_url}}/profiles/1","host":["{{base_url}}"],"path":["profiles","1"]}}},
+        {"name":"DELETE - Delete Profile","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/profiles/1","host":["{{base_url}}"],"path":["profiles","1"]}}}
+      ]
+    },
+    {
+      "name": "Galeries",
+      "item": [
+        {"name":"GET - All Galeries","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/galeries","host":["{{base_url}}"],"path":["galeries"]}}},
+        {"name":"GET - Galery by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/galeries/1","host":["{{base_url}}"],"path":["galeries","1"]}}},
+        {"name":"POST - Create Galery","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"post_id\": 1,\n  \"position\": 1,\n  \"status\": 1,\n  \"category\": \"umum\"\n}"},"url":{"raw":"{{base_url}}/galeries","host":["{{base_url}}"],"path":["galeries"]}}},
+        {"name":"PUT - Update Galery","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"post_id\": 2,\n  \"position\": 2,\n  \"status\": 1,\n  \"category\": \"pplg\"\n}"},"url":{"raw":"{{base_url}}/galeries/1","host":["{{base_url}}"],"path":["galeries","1"]}}},
+        {"name":"DELETE - Delete Galery","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/galeries/1","host":["{{base_url}}"],"path":["galeries","1"]}}},
+        {"name":"GET - Galery's Fotos","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/galeries/1/fotos","host":["{{base_url}}"],"path":["galeries","1","fotos"]}}},
+        {"name":"GET - Galeries by Category","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/galeries/category/pplg","host":["{{base_url}}"],"path":["galeries","category","pplg"]}}}
+      ]
+    },
+    {
+      "name": "Fotos",
+      "item": [
+        {"name":"GET - All Fotos","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/fotos","host":["{{base_url}}"],"path":["fotos"]}}},
+        {"name":"GET - Foto by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/fotos/1","host":["{{base_url}}"],"path":["fotos","1"]}}},
+        {"name":"POST - Create Foto","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Foto 1\",\n  \"file\": \"foto1.jpg\",\n  \"galery_id\": 1\n}"},"url":{"raw":"{{base_url}}/fotos","host":["{{base_url}}"],"path":["fotos"]}}},
+        {"name":"PUT - Update Foto","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"judul\": \"Foto 1 Update\",\n  \"file\": \"foto1_new.jpg\",\n  \"galery_id\": 2\n}"},"url":{"raw":"{{base_url}}/fotos/1","host":["{{base_url}}"],"path":["fotos","1"]}}},
+        {"name":"DELETE - Delete Foto","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/fotos/1","host":["{{base_url}}"],"path":["fotos","1"]}}},
+        {"name":"POST - Create Multiple Fotos","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"galery_id\": 1,\n  \"fotos\": [\n    { \"judul\": \"Foto A\", \"file\": \"a.jpg\" },\n    { \"judul\": \"Foto B\", \"file\": \"b.jpg\" }\n  ]\n}"},"url":{"raw":"{{base_url}}/fotos/multiple","host":["{{base_url}}"],"path":["fotos","multiple"]}}}
+      ]
+    },
+    {
+      "name": "Jurusan Activities",
+      "item": [
+        {"name":"GET - All Activities","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/jurusan-activities","host":["{{base_url}}"],"path":["jurusan-activities"]}}},
+        {"name":"GET - Activity by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/jurusan-activities/1","host":["{{base_url}}"],"path":["jurusan-activities","1"]}}},
+        {"name":"POST - Create Activity","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"jurusan\": \"PPLG\",\n  \"title\": \"Workshop Programming\",\n  \"description\": \"Kegiatan...\",\n  \"image_path\": \"workshop.jpg\",\n  \"activity_type\": \"workshop\",\n  \"activity_date\": \"2025-01-15\",\n  \"is_active\": true\n}"},"url":{"raw":"{{base_url}}/jurusan-activities","host":["{{base_url}}"],"path":["jurusan-activities"]}}},
+        {"name":"PUT - Update Activity","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"jurusan\": \"TJKT\",\n  \"title\": \"Workshop Networking\",\n  \"description\": \"Update...\",\n  \"image_path\": \"networking.jpg\",\n  \"activity_type\": \"workshop\",\n  \"activity_date\": \"2025-01-20\",\n  \"is_active\": true\n}"},"url":{"raw":"{{base_url}}/jurusan-activities/1","host":["{{base_url}}"],"path":["jurusan-activities","1"]}}},
+        {"name":"DELETE - Delete Activity","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/jurusan-activities/1","host":["{{base_url}}"],"path":["jurusan-activities","1"]}}},
+        {"name":"GET - Activities by Jurusan","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/jurusan-activities/jurusan/PPLG","host":["{{base_url}}"],"path":["jurusan-activities","jurusan","PPLG"]}}}
+      ]
+    },
+    {
+      "name": "School Galleries",
+      "item": [
+        {"name":"GET - All School Galleries","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/school-galleries","host":["{{base_url}}"],"path":["school-galleries"]}}},
+        {"name":"GET - School Gallery by ID","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/school-galleries/1","host":["{{base_url}}"],"path":["school-galleries","1"]}}},
+        {"name":"POST - Create School Gallery","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"title\": \"Galeri Sekolah\",\n  \"description\": \"Deskripsi...\",\n  \"image_path\": \"cover.jpg\",\n  \"category\": \"umum\",\n  \"is_active\": true\n}"},"url":{"raw":"{{base_url}}/school-galleries","host":["{{base_url}}"],"path":["school-galleries"]}}},
+        {"name":"PUT - Update School Gallery","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"title\": \"Galeri Sekolah Update\",\n  \"description\": \"Deskripsi update...\",\n  \"image_path\": \"cover2.jpg\",\n  \"category\": \"pplg\",\n  \"is_active\": true\n}"},"url":{"raw":"{{base_url}}/school-galleries/1","host":["{{base_url}}"],"path":["school-galleries","1"]}}},
+        {"name":"DELETE - Delete School Gallery","request":{"method":"DELETE","header":[],"url":{"raw":"{{base_url}}/school-galleries/1","host":["{{base_url}}"],"path":["school-galleries","1"]}}}
+      ]
+    },
+    {
+      "name": "Utility",
+      "item": [
+        {"name":"GET - Database Stats","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/utility/database-stats","host":["{{base_url}}"],"path":["utility","database-stats"]}}},
+        {"name":"GET - All Data Simple","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/utility/all-data-simple","host":["{{base_url}}"],"path":["utility","all-data-simple"]}}},
+        {"name":"GET - Table Count (posts)","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/utility/count/posts","host":["{{base_url}}"],"path":["utility","count","posts"]}}},
+        {"name":"GET - Search Posts","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/utility/search/posts?q=artikel&limit=5","host":["{{base_url}}"],"path":["utility","search","posts"],"query":[{"key":"q","value":"artikel"},{"key":"limit","value":"5"}]}}}
+      ]
+    },
+    {
+      "name": "Relationships & Specialized",
+      "item": [
+        {"name":"GET - All Data with Relations","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/relationships/all-data","host":["{{base_url}}"],"path":["relationships","all-data"]}}},
+        {"name":"GET - School Structure","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/relationships/school-structure","host":["{{base_url}}"],"path":["relationships","school-structure"]}}},
+        {"name":"GET - Data by Relationships","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/relationships/data-by-relationships","host":["{{base_url}}"],"path":["relationships","data-by-relationships"]}}},
+        {"name":"GET - Dashboard Summary","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/relationships/dashboard-summary","host":["{{base_url}}"],"path":["relationships","dashboard-summary"]}}},
+        {"name":"GET - Table Relationships","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/relationships/table-relationships","host":["{{base_url}}"],"path":["relationships","table-relationships"]}}},
+        {"name":"GET - Users with Posts","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/specialized/users-with-posts","host":["{{base_url}}"],"path":["specialized","users-with-posts"]}}},
+        {"name":"GET - Petugas with Posts & Kategori","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/specialized/petugas-with-posts-kategori","host":["{{base_url}}"],"path":["specialized","petugas-with-posts-kategori"]}}},
+        {"name":"GET - Kategori with Posts & Petugas","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/specialized/kategori-with-posts-petugas","host":["{{base_url}}"],"path":["specialized","kategori-with-posts-petugas"]}}},
+        {"name":"GET - Posts with All Relations","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/specialized/posts-with-all-relations","host":["{{base_url}}"],"path":["specialized","posts-with-all-relations"]}}},
+        {"name":"GET - Galeries with All Relations","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/specialized/galeries-with-all-relations","host":["{{base_url}}"],"path":["specialized","galeries-with-all-relations"]}}},
+        {"name":"GET - Fotos with All Relations","request":{"method":"GET","header":[],"url":{"raw":"{{base_url}}/specialized/fotos-with-all-relations","host":["{{base_url}}"],"path":["specialized","fotos-with-all-relations"]}}}
+      ]
+    }
+  ]
+}
