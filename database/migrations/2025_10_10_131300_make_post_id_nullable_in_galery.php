@@ -12,18 +12,34 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Drop foreign key constraint first
-        Schema::table('galery', function (Blueprint $table) {
-            $table->dropForeign(['post_id']);
-        });
-        
-        // Make post_id nullable
-        DB::statement('ALTER TABLE galery MODIFY post_id INTEGER NULL');
-        
-        // Add back foreign key with nullable
-        Schema::table('galery', function (Blueprint $table) {
-            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-        });
+        // Check if judul column already exists
+        if (!Schema::hasColumn('galery', 'judul')) {
+            // Drop foreign key constraint first if exists
+            try {
+                Schema::table('galery', function (Blueprint $table) {
+                    $table->dropForeign(['post_id']);
+                });
+            } catch (\Exception $e) {
+                // Foreign key might not exist, continue
+            }
+            
+            // Make post_id nullable
+            DB::statement('ALTER TABLE galery MODIFY post_id BIGINT UNSIGNED NULL');
+            
+            // Add judul column
+            Schema::table('galery', function (Blueprint $table) {
+                $table->string('judul')->nullable()->after('post_id');
+            });
+            
+            // Add back foreign key with nullable
+            try {
+                Schema::table('galery', function (Blueprint $table) {
+                    $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+                });
+            } catch (\Exception $e) {
+                // Foreign key might already exist, continue
+            }
+        }
     }
 
     /**
@@ -34,6 +50,11 @@ return new class extends Migration
         // Drop foreign key
         Schema::table('galery', function (Blueprint $table) {
             $table->dropForeign(['post_id']);
+        });
+        
+        // Drop judul column
+        Schema::table('galery', function (Blueprint $table) {
+            $table->dropColumn('judul');
         });
         
         // Make post_id not nullable again

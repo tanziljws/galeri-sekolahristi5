@@ -425,17 +425,17 @@
                                         $imageUrl = \App\Helpers\ImageHelper::getImageUrl($activity->fotos->first()->file);
                                     @endphp
                                     <img src="{{ $imageUrl }}" 
-                                         alt="{{ $activity->post->judul }}" 
+                                         alt="{{ $activity->post->judul ?? $activity->judul }}" 
                                          class="img-fluid gallery-image" 
                                          style="cursor: pointer;"
-                                         onclick="openImageModal('{{ $imageUrl }}', '{{ $activity->post->judul }}')">
+                                         onclick="openImageModal('{{ $imageUrl }}', '{{ addslashes($activity->post->judul ?? $activity->judul) }}')">
                                 @else
                                     <img src="{{ asset('images/placeholder.jpg') }}" alt="Placeholder" class="img-fluid">
                                 @endif
                                 <div class="activity-overlay">
                                     <div class="activity-info">
-                                        <h6>{{ $activity->post->judul }}</h6>
-                                        <p>{{ Str::limit($activity->post->konten, 100) }}</p>
+                                        <h6>{{ $activity->post->judul ?? $activity->judul }}</h6>
+                                        <p>{{ $activity->post ? Str::limit($activity->post->konten, 100) : 'Galeri ' . $activity->judul }}</p>
                                         <small class="text-light">{{ $activity->fotos->count() }} foto</small>
                                     </div>
                                 </div>

@@ -27,6 +27,21 @@ Route::get('/galeri-foto', [GaleriController::class, 'public'])->name('galeri.pu
 // Public Photo View (shareable link via WhatsApp/Ngrok)
 Route::get('/foto/{id}', [GaleriController::class, 'showPhoto'])->name('foto.show');
 
+// Storage file access route (fallback jika symbolic link tidak berfungsi)
+Route::get('/storage-file/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    
+    $mimeType = mime_content_type($filePath);
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.file');
+
 // Protected routes (perlu login)
 Route::middleware(['auth.check'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -68,6 +83,9 @@ Route::middleware(['auth.check'])->group(function () {
     // Galeri Photo routes
     Route::post('galeri/{galery}/foto/{foto}', [GaleriController::class, 'updatePhoto'])->name('galeri.foto.update');
     Route::delete('galeri/{galery}/foto/{foto}', [GaleriController::class, 'destroyPhoto'])->name('galeri.foto.destroy');
+    
+    // Quick Upload - Upload foto cepat ke album yang sudah ada
+    Route::post('galeri/{id}/quick-upload', [GaleriController::class, 'quickUpload'])->name('galeri.quick-upload');
     
     // Galeri Report Route
     Route::get('/galeri-report', [GaleriController::class, 'report'])->name('galeri.report');

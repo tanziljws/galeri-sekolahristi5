@@ -7,9 +7,10 @@ class ImageHelper
     public static function getImageUrl($filename)
     {
         // Lokasi yang akan dicek berurutan
+        // Prioritas: public/storage (jika symbolic link berfungsi), lalu storage/app/public (direct access), lalu public/images
         $locations = [
-            ['base' => storage_path('app/public/galeri/'), 'asset' => 'storage/galeri/'],
             ['base' => public_path('storage/galeri/'), 'asset' => 'storage/galeri/'],
+            ['base' => storage_path('app/public/galeri/'), 'use_route' => true],
             ['base' => public_path('images/galeri/'),  'asset' => 'images/galeri/'],
         ];
 
@@ -20,6 +21,11 @@ class ImageHelper
             foreach ($candidates as $candidate) {
                 $full = rtrim($loc['base'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $candidate;
                 if (file_exists($full)) {
+                    // Jika file ada di storage/app/public dan symbolic link tidak berfungsi, gunakan route
+                    if (isset($loc['use_route']) && $loc['use_route']) {
+                        return url('storage-file/galeri/' . $candidate);
+                    }
+                    
                     // Use request()->getSchemeAndHttpHost() to get the correct base URL
                     $baseUrl = request()->getSchemeAndHttpHost();
                     return $baseUrl . '/' . $loc['asset'] . $candidate;

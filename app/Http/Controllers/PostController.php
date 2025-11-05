@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Kategori;
 use App\Models\Petugas;
+use App\Models\Galery;
+use App\Models\Foto;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -30,10 +33,12 @@ class PostController extends Controller
             'isi' => 'required',
             'petugas_id' => 'required|exists:petugas,id',
             'status' => 'required|in:Published,Draft',
-            'tanggal_jadwal' => 'nullable|date|after_or_equal:today'
+            'tanggal_jadwal' => 'nullable|date|after_or_equal:today',
+            'fotos' => 'nullable|array|max:10',
+            'fotos.*' => 'image|mimes:jpeg,jpg,png,JPEG,JPG,PNG|max:20480'
         ]);
 
-        Post::create([
+        $post = Post::create([
             'judul' => $request->judul,
             'kategori_id' => $request->kategori_id,
             'isi' => $request->isi,
@@ -41,6 +46,43 @@ class PostController extends Controller
             'status' => $request->status,
             'tanggal_jadwal' => $request->tanggal_jadwal
         ]);
+
+        // Upload foto jika ada
+        if ($request->hasFile('fotos')) {
+            // Buat galeri untuk berita ini
+            $galery = Galery::create([
+                'post_id' => $post->id,
+                'judul' => $post->judul,
+                'position' => 0,
+                'status' => 1,
+                'category' => 'berita'
+            ]);
+
+            $photoNumber = 1;
+            foreach ($request->file('fotos') as $uploaded) {
+                if ($uploaded && $uploaded->isValid()) {
+                    $ext = strtolower($uploaded->getClientOriginalExtension() ?: 'jpg');
+                    $fileName = time() . '_' . uniqid() . '.' . $ext;
+                    
+                    // Simpan ke storage/app/public/galeri
+                    Storage::disk('public')->putFileAs('galeri', $uploaded, $fileName);
+                    
+                    // WINDOWS FIX: Copy juga ke public/storage/galeri
+                    $publicPath = public_path('storage/galeri/' . $fileName);
+                    if (!file_exists(dirname($publicPath))) {
+                        mkdir(dirname($publicPath), 0755, true);
+                    }
+                    copy($uploaded->getRealPath(), $publicPath);
+                    
+                    // Simpan ke database
+                    $galery->fotos()->create([
+                        'file' => $fileName,
+                        'judul' => $post->judul . ' - Foto ' . $photoNumber
+                    ]);
+                    $photoNumber++;
+                }
+            }
+        }
 
         return redirect()->route('post.index')->with('success', 'Berita berhasil ditambahkan!');
     }
@@ -69,7 +111,9 @@ class PostController extends Controller
             'isi' => 'required',
             'petugas_id' => 'required|exists:petugas,id',
             'status' => 'required|in:Published,Draft',
-            'tanggal_jadwal' => 'nullable|date|after_or_equal:today'
+            'tanggal_jadwal' => 'nullable|date|after_or_equal:today',
+            'fotos' => 'nullable|array|max:10',
+            'fotos.*' => 'image|mimes:jpeg,jpg,png,JPEG,JPG,PNG|max:20480'
         ]);
 
         $post->update([
@@ -80,6 +124,46 @@ class PostController extends Controller
             'status' => $request->status,
             'tanggal_jadwal' => $request->tanggal_jadwal
         ]);
+
+        // Upload foto baru jika ada
+        if ($request->hasFile('fotos')) {
+            // Cari atau buat galeri untuk berita ini
+            $galery = $post->galeries()->first();
+            if (!$galery) {
+                $galery = Galery::create([
+                    'post_id' => $post->id,
+                    'judul' => $post->judul,
+                    'position' => 0,
+                    'status' => 1,
+                    'category' => 'berita'
+                ]);
+            }
+
+            $photoNumber = $galery->fotos()->count() + 1;
+            foreach ($request->file('fotos') as $uploaded) {
+                if ($uploaded && $uploaded->isValid()) {
+                    $ext = strtolower($uploaded->getClientOriginalExtension() ?: 'jpg');
+                    $fileName = time() . '_' . uniqid() . '.' . $ext;
+                    
+                    // Simpan ke storage/app/public/galeri
+                    Storage::disk('public')->putFileAs('galeri', $uploaded, $fileName);
+                    
+                    // WINDOWS FIX: Copy juga ke public/storage/galeri
+                    $publicPath = public_path('storage/galeri/' . $fileName);
+                    if (!file_exists(dirname($publicPath))) {
+                        mkdir(dirname($publicPath), 0755, true);
+                    }
+                    copy($uploaded->getRealPath(), $publicPath);
+                    
+                    // Simpan ke database
+                    $galery->fotos()->create([
+                        'file' => $fileName,
+                        'judul' => $post->judul . ' - Foto ' . $photoNumber
+                    ]);
+                    $photoNumber++;
+                }
+            }
+        }
 
         return redirect()->route('post.index')->with('success', 'Berita berhasil diupdate!');
     }

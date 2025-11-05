@@ -194,7 +194,10 @@ class AdminController extends Controller
      */
     public function upload()
     {
-        return view('admin.upload');
+        // Get all categories from kategori_post table
+        $categories = \App\Models\KategoriPost::orderBy('judul', 'asc')->get();
+        
+        return view('admin.upload', compact('categories'));
     }
 
     /**

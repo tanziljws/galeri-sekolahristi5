@@ -113,13 +113,17 @@
                                             <div class="col-md-6">
                                                 <label for="category" class="form-label">Kategori *</label>
                                                 <select class="form-select" id="category" name="category" required>
-                                                    <option value="">Pilih Kategori</option>
-                                                    <option value="prestasi">Prestasi</option>
-                                                    <option value="maulid nabi">Maulid Nabi</option>
-                                                    <option value="neospragma">Neospragma</option>
-                                                    <option value="ekstrakurikuler">Ekstrakurikuler</option>
-                                                    <option value="lainnya">Lainnya</option>
+                                                    <option value="">Pilih kategori...</option>
+                                                    @foreach($categories as $category)
+                                                        <option value="{{ strtolower($category->judul) }}">
+                                                            {{ $category->judul }}
+                                                        </option>
+                                                    @endforeach
                                                 </select>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Kategori diambil dari Kategori Post
+                                                </small>
                                             </div>
                                         </div>
 
@@ -323,20 +327,20 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('Foto berhasil diupload!', 'success');
-                    this.reset();
-                    previewArea.style.display = 'none';
-                    captionsArea.style.display = 'none';
-                    loadStats(); // Refresh stats
+                    showAlert('Foto berhasil diupload! Mengalihkan...', 'success');
+                    // Redirect to galeri page after 1 second
+                    setTimeout(() => {
+                        window.location.href = '/admin/galeri';
+                    }, 1000);
                 } else {
                     showAlert('Gagal upload foto: ' + data.message, 'danger');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 showAlert('Terjadi kesalahan saat upload', 'danger');
-            })
-            .finally(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             });

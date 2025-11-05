@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Galeri Sekolah</title>
+    <title>Galeri Sekolah - v2.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Force refresh cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <style>
         body { 
             background: #ffffff; 
@@ -391,65 +395,105 @@
             }
         }
         
-        /* Modal Navigation Buttons */
-        .modal-nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1050;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        /* Modal Navigation Buttons - Instagram Style */
+        .btn-nav-modal {
+            position: absolute !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid rgba(0,0,0,0.1) !important;
+            width: 50px !important;
+            height: 50px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            z-index: 1000 !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
         }
         
-        .modal-nav-btn:hover {
+        .btn-nav-modal:hover {
             background: rgba(255, 255, 255, 1);
             transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         
-        .modal-nav-btn:disabled {
+        .btn-nav-modal i {
+            font-size: 1.4rem !important;
+            color: #111 !important;
+            font-weight: bold !important;
+        }
+        
+        .btn-nav-prev {
+            left: 20px !important;
+        }
+        
+        .btn-nav-next {
+            right: 20px !important;
+        }
+        
+        .btn-nav-modal:disabled {
             opacity: 0.3;
             cursor: not-allowed;
         }
         
-        .modal-nav-btn i {
-            font-size: 1.5rem;
-            color: #333;
+        .btn-nav-modal:disabled:hover {
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
         }
         
-        .modal-nav-prev {
-            left: 20px;
+        /* Photo Counter */
+        .photo-counter {
+            position: absolute !important;
+            bottom: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            color: white !important;
+            padding: 10px 20px !important;
+            border-radius: 25px !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            z-index: 1000 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
         }
         
-        .modal-nav-next {
-            right: 20px;
+        /* Keyboard Navigation Hint */
+        .keyboard-hint {
+            position: absolute;
+            top: 20px;
+            right: 80px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            z-index: 10;
+            opacity: 0.7;
         }
         
         @media (max-width: 768px) {
-            .modal-nav-btn {
-                width: 40px;
-                height: 40px;
+            .btn-nav-modal {
+                width: 35px;
+                height: 35px;
             }
             
-            .modal-nav-btn i {
-                font-size: 1.2rem;
+            .btn-nav-modal i {
+                font-size: 1rem;
             }
             
-            .modal-nav-prev {
+            .btn-nav-prev {
                 left: 10px;
             }
             
-            .modal-nav-next {
+            .btn-nav-next {
                 right: 10px;
+            }
+            
+            .keyboard-hint {
+                display: none;
             }
         }
     </style>
@@ -566,7 +610,7 @@
                             <div class="col-12 col-md-6 col-lg-4 photo-item" data-category="{{ $photo->galery->category }}">
                                 <div class="card gallery-card h-100 border-warning">
                                     <div class="position-relative">
-                                        <img class="gallery-img" src="{{ asset('storage/galeri/' . ($photo->file ?? basename($photo->path))) }}" alt="Foto Prestasi">
+                                        <img class="gallery-img" src="{{ \App\Helpers\ImageHelper::getImageUrl($photo->file) }}" alt="Foto Prestasi" onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
                                         <div class="position-absolute top-0 end-0 m-2">
                                             <span class="badge bg-warning text-dark">
                                                 <i class="fas fa-trophy me-1"></i>Prestasi
@@ -639,7 +683,7 @@
                             <div class="col-12 col-md-6 col-lg-4 photo-item" data-category="{{ $photo->galery->category }}">
                                 <div class="card gallery-card h-100">
                                     <div class="position-relative">
-                                        <img class="gallery-img" src="{{ asset('storage/galeri/' . ($photo->file ?? basename($photo->path))) }}" alt="Foto Galeri">
+                                        <img class="gallery-img" src="{{ \App\Helpers\ImageHelper::getImageUrl($photo->file) }}" alt="Foto Galeri" onerror="this.src='{{ asset('images/placeholder.jpg') }}'">
                                         <div class="position-absolute top-0 end-0 m-2">
                                             @php
                                                 $categoryLabels = [
@@ -748,24 +792,35 @@
         </div>
     </main>
 
-    <!-- Reusable Image Modal -->
+    <!-- Reusable Image Modal with Navigation -->
     <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title"><i class="fas fa-image me-2"></i>Pratinjau Foto</h5>
+                    <h5 class="modal-title">
+                        <i class="fas fa-image me-2"></i>
+                        <span id="modalPhotoTitle">Pratinjau Foto</span>
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0 text-center bg-dark position-relative">
-                    <img id="modalImage" src="" alt="Preview" class="img-fluid w-100" style="max-height: 80vh; object-fit: contain;">
-                    
-                    <!-- Navigation Buttons -->
-                    <button class="modal-nav-btn modal-nav-prev" id="modalPrevBtn" title="Foto Sebelumnya">
+                    <!-- Previous Button -->
+                    <button class="btn-nav-modal btn-nav-prev" id="prevPhoto" onclick="navigatePhoto(-1)">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button class="modal-nav-btn modal-nav-next" id="modalNextBtn" title="Foto Selanjutnya">
+                    
+                    <!-- Image -->
+                    <img id="modalImage" src="" alt="Preview" class="img-fluid w-100" style="max-height: 80vh; object-fit: contain;">
+                    
+                    <!-- Next Button -->
+                    <button class="btn-nav-modal btn-nav-next" id="nextPhoto" onclick="navigatePhoto(1)">
                         <i class="fas fa-chevron-right"></i>
                     </button>
+                    
+                    <!-- Photo Counter -->
+                    <div class="photo-counter">
+                        <span id="currentPhotoIndex">1</span> / <span id="totalPhotos">1</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -840,15 +895,65 @@
                     item.style.display = 'none';
                 }
             });
-            
-            // Update gallery images array after filtering
-            updateGalleryImages();
         };
     
-        // Global variables for modal navigation
-        let allGalleryImages = [];
-        let currentImageIndex = 0;
-        let bsModal = null;
+        // Photo Navigation System
+        let allPhotos = [];
+        let currentPhotoIndex = 0;
+        
+        function initPhotoNavigation() {
+            // Collect all visible photos
+            allPhotos = Array.from(document.querySelectorAll('.gallery-img'))
+                .filter(img => img.closest('.photo-item').style.display !== 'none')
+                .map(img => ({
+                    src: img.getAttribute('src'),
+                    title: img.closest('.card-body')?.querySelector('.caption')?.textContent || 'Foto'
+                }));
+        }
+        
+        function openPhotoModal(index) {
+            currentPhotoIndex = index;
+            const photo = allPhotos[currentPhotoIndex];
+            
+            document.getElementById('modalImage').setAttribute('src', photo.src);
+            document.getElementById('modalPhotoTitle').textContent = photo.title;
+            document.getElementById('currentPhotoIndex').textContent = currentPhotoIndex + 1;
+            document.getElementById('totalPhotos').textContent = allPhotos.length;
+            
+            updateNavigationButtons();
+        }
+        
+        function navigatePhoto(direction) {
+            console.log('Navigate photo:', direction, 'Current:', currentPhotoIndex, 'Total:', allPhotos.length);
+            currentPhotoIndex += direction;
+            
+            // Loop around
+            if (currentPhotoIndex < 0) {
+                currentPhotoIndex = allPhotos.length - 1;
+            } else if (currentPhotoIndex >= allPhotos.length) {
+                currentPhotoIndex = 0;
+            }
+            
+            console.log('New index:', currentPhotoIndex);
+            openPhotoModal(currentPhotoIndex);
+        }
+        
+        // Make function global
+        window.navigatePhoto = navigatePhoto;
+        
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevPhoto');
+            const nextBtn = document.getElementById('nextPhoto');
+            
+            // Disable buttons if only 1 photo
+            if (allPhotos.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
         
         // Klik gambar untuk membuka modal pratinjau
         document.addEventListener('DOMContentLoaded', function () {
@@ -856,40 +961,35 @@
             
             const modalElement = document.getElementById('imageModal');
             const modalImage = document.getElementById('modalImage');
-            bsModal = modalElement ? new bootstrap.Modal(modalElement) : null;
+            const bsModal = modalElement ? new bootstrap.Modal(modalElement) : null;
             
-            // Initialize gallery images array
-            updateGalleryImages();
+            // Initialize photo navigation
+            initPhotoNavigation();
 
             document.querySelectorAll('.gallery-img').forEach(function (img, index) {
                 img.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    const src = this.getAttribute('src');
-                    currentImageIndex = allGalleryImages.indexOf(src);
-                    modalImage.setAttribute('src', src);
-                    updateNavigationButtons();
+                    initPhotoNavigation(); // Refresh photo list
+                    
+                    // Find index in visible photos
+                    const visiblePhotos = Array.from(document.querySelectorAll('.gallery-img'))
+                        .filter(i => i.closest('.photo-item').style.display !== 'none');
+                    const clickedIndex = visiblePhotos.indexOf(img);
+                    
+                    openPhotoModal(clickedIndex);
                     bsModal.show();
                 });
-            });
-            
-            // Navigation button handlers
-            document.getElementById('modalPrevBtn').addEventListener('click', function(e) {
-                e.stopPropagation();
-                navigateModal(-1);
-            });
-            
-            document.getElementById('modalNextBtn').addEventListener('click', function(e) {
-                e.stopPropagation();
-                navigateModal(1);
             });
             
             // Keyboard navigation
             document.addEventListener('keydown', function(e) {
                 if (modalElement.classList.contains('show')) {
                     if (e.key === 'ArrowLeft') {
-                        navigateModal(-1);
+                        navigatePhoto(-1);
                     } else if (e.key === 'ArrowRight') {
-                        navigateModal(1);
+                        navigatePhoto(1);
+                    } else if (e.key === 'Escape') {
+                        bsModal.hide();
                     }
                 }
             });
@@ -976,49 +1076,6 @@
             
             console.log('Page initialized successfully!');
         });
-        
-        // Update gallery images array (for filtering)
-        function updateGalleryImages() {
-            allGalleryImages = [];
-            document.querySelectorAll('.gallery-img').forEach(function(img) {
-                const photoItem = img.closest('.photo-item');
-                if (photoItem && photoItem.style.display !== 'none') {
-                    allGalleryImages.push(img.getAttribute('src'));
-                }
-            });
-        }
-        
-        // Navigate modal images
-        function navigateModal(direction) {
-            currentImageIndex += direction;
-            
-            // Wrap around
-            if (currentImageIndex < 0) {
-                currentImageIndex = allGalleryImages.length - 1;
-            } else if (currentImageIndex >= allGalleryImages.length) {
-                currentImageIndex = 0;
-            }
-            
-            const modalImage = document.getElementById('modalImage');
-            modalImage.setAttribute('src', allGalleryImages[currentImageIndex]);
-            updateNavigationButtons();
-        }
-        
-        // Update navigation button states
-        function updateNavigationButtons() {
-            const prevBtn = document.getElementById('modalPrevBtn');
-            const nextBtn = document.getElementById('modalNextBtn');
-            
-            // Always enable buttons for circular navigation
-            prevBtn.disabled = false;
-            nextBtn.disabled = false;
-            
-            // Optional: disable if only one image
-            if (allGalleryImages.length <= 1) {
-                prevBtn.disabled = true;
-                nextBtn.disabled = true;
-            }
-        }
 
         // Load interaction counts for all photos
         function loadInteractionCounts() {

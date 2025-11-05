@@ -136,18 +136,20 @@
                             @if($galery->fotos->count() > 0)
                                 <div class="d-flex align-items-center justify-content-center" style="height: 275px;">
                                     @php
-                                        $imageUrl = \App\Helpers\ImageHelper::getImageUrl($galery->fotos->first()->file);
+                                        $firstPhoto = $galery->fotos->first();
+                                        $imageUrl = \App\Helpers\ImageHelper::getImageUrl($firstPhoto->file);
                                     @endphp
                                     
                                     <img src="{{ $imageUrl }}" 
                                          class="card-img-top d-block mx-auto" 
                                          alt="Album {{ $galery->judul ?? 'Tanpa Judul' }}"
-                                         style="width: 225px; height: 225px; object-fit: cover; object-position: center top;">
+                                         style="width: 225px; height: 225px; object-fit: cover; object-position: center top;"
+                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}'">
                                     
-                                    <!-- Debug info -->
+                                    <!-- Photo count badge -->
                                     <div class="position-absolute bottom-0 start-0 m-2">
                                         <small class="text-white bg-dark px-2 py-1 rounded">
-                                            {{ $galery->fotos->count() }} foto
+                                            <i class="fas fa-images me-1"></i>{{ $galery->fotos->count() }} foto
                                         </small>
                                     </div>
                                 </div>
@@ -196,10 +198,13 @@
                             <p class="card-text text-muted small mb-3">{{ $galery->fotos->count() }} Foto</p>
                             
                             <!-- Action Buttons -->
-                            <div class="d-flex gap-2 justify-content-center">
+                            <div class="d-flex gap-2 justify-content-center flex-wrap">
                                 <a href="{{ route('galeri.show', $galery->id) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye me-1"></i> Lihat
                                 </a>
+                                <button type="button" class="btn btn-sm btn-success" onclick="openQuickUpload({{ $galery->id }}, '{{ $galery->judul }}')">
+                                    <i class="fas fa-upload me-1"></i> Upload Foto
+                                </button>
                                 <a href="{{ route('galeri.edit', $galery->id) }}" class="btn btn-sm btn-outline-warning">
                                     <i class="fas fa-edit me-1"></i> Edit
                                 </a>
@@ -301,8 +306,124 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+    
+    // Scroll to highlighted card if exists
+    const highlightedCard = document.querySelector('.ring-border');
+    if (highlightedCard) {
+        setTimeout(() => {
+            highlightedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    }
+});
+
+// Quick Upload Modal Functions
+function openQuickUpload(galeryId, galeryTitle) {
+    document.getElementById('quickUploadGaleryId').value = galeryId;
+    document.getElementById('quickUploadGaleryTitle').textContent = galeryTitle;
+    document.getElementById('quickUploadForm').action = `/galeri/${galeryId}/quick-upload`;
+    document.getElementById('quickUploadPhotos').value = '';
+    document.getElementById('quickUploadPreview').innerHTML = '';
+    document.getElementById('quickUploadPreview').style.display = 'none';
+    
+    const modal = new bootstrap.Modal(document.getElementById('quickUploadModal'));
+    modal.show();
+}
+
+// Handle file selection for quick upload
+document.addEventListener('DOMContentLoaded', function() {
+    const quickUploadInput = document.getElementById('quickUploadPhotos');
+    const quickUploadPreview = document.getElementById('quickUploadPreview');
+    
+    if (quickUploadInput) {
+        quickUploadInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                quickUploadPreview.innerHTML = '';
+                quickUploadPreview.style.display = 'block';
+                
+                let html = '<div class="row g-2">';
+                for (let i = 0; i < Math.min(files.length, 20); i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        html += `
+                            <div class="col-3">
+                                <img src="${e.target.result}" class="img-thumbnail" style="height: 80px; width: 100%; object-fit: cover;">
+                            </div>
+                        `;
+                        if (i === Math.min(files.length, 20) - 1) {
+                            html += '</div>';
+                            quickUploadPreview.innerHTML = html;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } else {
+                quickUploadPreview.style.display = 'none';
+            }
+        });
+    }
 });
 </script>
+
+<!-- Quick Upload Modal -->
+<div class="modal fade" id="quickUploadModal" tabindex="-1" aria-labelledby="quickUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="quickUploadModalLabel">
+                    <i class="fas fa-upload me-2"></i>
+                    Upload Foto ke Album: <span id="quickUploadGaleryTitle"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="quickUploadForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" id="quickUploadGaleryId" name="galery_id">
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Upload Otomatis:</strong> Pilih foto, langsung masuk database dan tampil di galeri. Judul foto akan dibuat otomatis.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="quickUploadPhotos" class="form-label fw-bold">
+                            <i class="fas fa-images me-1"></i>
+                            Pilih Foto (Maksimal 20 foto)
+                        </label>
+                        <input type="file" 
+                               class="form-control" 
+                               id="quickUploadPhotos" 
+                               name="photos[]" 
+                               accept="image/*" 
+                               multiple 
+                               required>
+                        <div class="form-text">
+                            Format: JPG, PNG | Ukuran maksimal: 20MB per file
+                        </div>
+                    </div>
+                    
+                    <div id="quickUploadPreview" style="display: none;">
+                        <label class="form-label fw-bold">Preview:</label>
+                        <!-- Preview images will be inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-upload me-1"></i>
+                        Upload Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 @push('styles')
 <style>

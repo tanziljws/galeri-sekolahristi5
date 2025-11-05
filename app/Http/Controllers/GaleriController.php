@@ -13,10 +13,11 @@ class GaleriController extends Controller
 {
     public function public()
     {
-        // Ambil semua foto dari galeri yang aktif
+        // Ambil semua foto dari galeri yang aktif, KECUALI galeri berita
         $allPhotos = Foto::with(['galery', 'galery.post', 'interactions', 'comments'])
             ->whereHas('galery', function ($q) {
-                $q->where('status', 1);
+                $q->where('status', 1)
+                  ->where('category', '!=', 'berita'); // Exclude galeri berita
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -26,9 +27,9 @@ class GaleriController extends Controller
             return $photo->galery->category === 'prestasi';
         });
 
-        // Foto dari galeri umum (bukan prestasi)
+        // Foto dari galeri umum (bukan prestasi dan bukan berita)
         $generalPhotos = $allPhotos->filter(function($photo) {
-            return $photo->galery->category !== 'prestasi';
+            return $photo->galery->category !== 'prestasi' && $photo->galery->category !== 'berita';
         });
 
         // Kumpulkan kategori yang ada untuk filter
@@ -119,17 +120,33 @@ class GaleriController extends Controller
                 'category' => $request->category
             ]);
 
-            // Upload foto jika ada
+            // Upload foto jika ada - OTOMATIS TANPA INPUT MANUAL
             if ($request->hasFile('fotos')) {
+                $photoNumber = 1;
                 foreach ($request->file('fotos') as $uploaded) {
                     if ($uploaded && $uploaded->isValid()) {
                         $ext = strtolower($uploaded->getClientOriginalExtension() ?: 'jpg');
                         $fileName = time() . '_' . uniqid() . '.' . $ext;
+                        
+                        // Simpan ke storage/app/public/galeri
                         Storage::disk('public')->putFileAs('galeri', $uploaded, $fileName);
+                        
+                        // WINDOWS FIX: Copy juga ke public/storage/galeri (karena symlink sering tidak berfungsi di Windows)
+                        $publicPath = public_path('storage/galeri/' . $fileName);
+                        if (!file_exists(dirname($publicPath))) {
+                            mkdir(dirname($publicPath), 0755, true);
+                        }
+                        copy($uploaded->getRealPath(), $publicPath);
+                        
+                        // Auto-generate judul dari nama file atau judul album
+                        $originalName = pathinfo($uploaded->getClientOriginalName(), PATHINFO_FILENAME);
+                        $autoJudul = $request->judul . ' - Foto ' . $photoNumber;
+                        
                         $galery->fotos()->create([
                             'file' => $fileName,
-                            'judul' => 'Foto ' . ($galery->fotos()->count() + 1)
+                            'judul' => $autoJudul
                         ]);
+                        $photoNumber++;
                     }
                 }
             }
@@ -484,5 +501,67 @@ class GaleriController extends Controller
             'galleriesByCategory',
             'recentGaleries'
         ));
+    }
+
+    /**
+     * Quick upload photos to existing gallery
+     * Admin tinggal pilih foto, langsung masuk database dan tampil
+     */
+    public function quickUpload(Request $request, $id)
+    {
+        try {
+            $galery = Galery::findOrFail($id);
+            
+            $request->validate([
+                'photos' => 'required|array|min:1',
+                'photos.*' => 'image|mimes:jpeg,jpg,png,JPEG,JPG,PNG|max:20480'
+            ], [
+                'photos.required' => 'Pilih minimal 1 foto untuk diupload.',
+                'photos.*.max' => 'Ukuran file foto maksimal 20MB per file.',
+                'photos.*.image' => 'File harus berupa gambar (JPG, PNG).',
+                'photos.*.mimes' => 'Format file harus JPG atau PNG.'
+            ]);
+
+            $uploadedCount = 0;
+            $photoNumber = $galery->fotos()->count() + 1;
+
+            foreach ($request->file('photos') as $uploaded) {
+                if ($uploaded && $uploaded->isValid()) {
+                    $ext = strtolower($uploaded->getClientOriginalExtension() ?: 'jpg');
+                    $fileName = time() . '_' . uniqid() . '.' . $ext;
+                    
+                    // Simpan ke storage/app/public/galeri
+                    Storage::disk('public')->putFileAs('galeri', $uploaded, $fileName);
+                    
+                    // WINDOWS FIX: Copy juga ke public/storage/galeri
+                    $publicPath = public_path('storage/galeri/' . $fileName);
+                    if (!file_exists(dirname($publicPath))) {
+                        mkdir(dirname($publicPath), 0755, true);
+                    }
+                    copy($uploaded->getRealPath(), $publicPath);
+                    
+                    // Auto-generate judul
+                    $autoJudul = $galery->judul . ' - Foto ' . $photoNumber;
+                    
+                    $galery->fotos()->create([
+                        'file' => $fileName,
+                        'judul' => $autoJudul
+                    ]);
+                    
+                    $uploadedCount++;
+                    $photoNumber++;
+                }
+            }
+
+            return redirect()->back()->with('success', "Berhasil upload {$uploadedCount} foto ke album \"{$galery->judul}\"!");
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

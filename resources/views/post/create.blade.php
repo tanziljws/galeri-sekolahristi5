@@ -24,7 +24,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('post.store') }}" method="POST">
+                    <form action="{{ route('post.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="row">
@@ -57,6 +57,34 @@
                                     <div class="form-text">
                                         <i class="fas fa-info-circle me-1"></i>
                                         Gunakan format HTML untuk styling teks (bold, italic, dll.)
+                                    </div>
+                                </div>
+
+                                <!-- Upload Foto Section -->
+                                <div class="mb-3">
+                                    <label for="fotos" class="form-label">
+                                        <i class="fas fa-images me-1"></i>
+                                        Upload Foto Berita (Opsional)
+                                    </label>
+                                    <input type="file" 
+                                           class="form-control @error('fotos.*') is-invalid @enderror" 
+                                           id="fotos" 
+                                           name="fotos[]" 
+                                           accept="image/*" 
+                                           multiple
+                                           onchange="previewImages(event)">
+                                    @error('fotos.*')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Maksimal 10 foto | Format: JPG, PNG | Ukuran maksimal: 20MB per file
+                                    </div>
+                                    
+                                    <!-- Preview Container -->
+                                    <div id="imagePreview" class="mt-3" style="display: none;">
+                                        <label class="form-label fw-bold">Preview Foto:</label>
+                                        <div class="row g-2" id="previewContainer"></div>
                                     </div>
                                 </div>
                             </div>
@@ -189,5 +217,79 @@ textarea {
 .card.bg-light {
     border: 1px solid #e9ecef;
 }
+
+.preview-image-container {
+    position: relative;
+}
+
+.preview-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+}
+
+.remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.remove-image:hover {
+    background: #dc2626;
+}
 </style>
+
+<script>
+function previewImages(event) {
+    const files = event.target.files;
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    if (files.length > 0) {
+        previewContainer.innerHTML = '';
+        imagePreview.style.display = 'block';
+        
+        for (let i = 0; i < Math.min(files.length, 10); i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const col = document.createElement('div');
+                col.className = 'col-md-3 col-sm-4 col-6';
+                col.innerHTML = `
+                    <div class="preview-image-container">
+                        <img src="${e.target.result}" class="preview-image" alt="Preview ${i + 1}">
+                        <div class="text-center mt-2">
+                            <small class="text-muted">Foto ${i + 1}</small>
+                        </div>
+                    </div>
+                `;
+                previewContainer.appendChild(col);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        if (files.length > 10) {
+            alert('Maksimal 10 foto. Hanya 10 foto pertama yang akan diupload.');
+        }
+    } else {
+        imagePreview.style.display = 'none';
+    }
+}
+</script>
 @endsection

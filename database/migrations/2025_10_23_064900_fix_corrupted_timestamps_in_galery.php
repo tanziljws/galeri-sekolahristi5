@@ -12,14 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Fix corrupted timestamps in galery table
+        // Add judul column if it doesn't exist
+        if (!Schema::hasColumn('galery', 'judul')) {
+            Schema::table('galery', function (Blueprint $table) {
+                $table->string('judul')->nullable()->after('post_id');
+            });
+        }
+        
+        // Fix corrupted timestamps in galery table (MySQL/MariaDB syntax)
         // Some records have 'umum' or other string values in created_at/updated_at columns
-        
-        DB::statement("UPDATE galery SET created_at = datetime('now') WHERE created_at IS NULL OR created_at = '' OR created_at NOT LIKE '____-__-__ __:__:__'");
-        DB::statement("UPDATE galery SET updated_at = datetime('now') WHERE updated_at IS NULL OR updated_at = '' OR updated_at NOT LIKE '____-__-__ __:__:__'");
-        
-        // Log the fix
-        \Log::info('Fixed corrupted timestamps in galery table');
+        try {
+            DB::statement("UPDATE galery SET created_at = NOW() WHERE created_at IS NULL OR created_at = ''");
+            DB::statement("UPDATE galery SET updated_at = NOW() WHERE updated_at IS NULL OR updated_at = ''");
+            
+            // Log the fix
+            \Log::info('Fixed corrupted timestamps and added judul column in galery table');
+        } catch (\Exception $e) {
+            // If timestamp fix fails, just continue - not critical
+            \Log::warning('Could not fix timestamps: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -27,6 +38,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Cannot reverse this migration as we don't know the original corrupted values
+        // Drop judul column if exists
+        if (Schema::hasColumn('galery', 'judul')) {
+            Schema::table('galery', function (Blueprint $table) {
+                $table->dropColumn('judul');
+            });
+        }
+        
+        // Cannot reverse timestamp fixes as we don't know the original corrupted values
     }
 };
