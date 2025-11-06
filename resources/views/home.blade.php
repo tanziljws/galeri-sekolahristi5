@@ -2158,22 +2158,10 @@
                             </ul>
                         </li>
                     @else
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('user.login.form') }}">
                                 <i class="fas fa-sign-in-alt me-1"></i>Login
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('user.login.form') }}">
-                                        <i class="fas fa-user me-2"></i>Login User
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('login') }}">
-                                        <i class="fas fa-user-shield me-2"></i>Login Admin
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link btn btn-primary text-white" href="{{ route('user.register.form') }}">
@@ -2521,11 +2509,26 @@
                              onclick="openImageFullscreen(
                                  '{{ \App\Helpers\ImageHelper::getImageUrl($galery->fotos->first()->file) }}',
                                  [
-                                     @foreach($galery->fotos as $foto)
+                                     @php
+                                         // Ambil semua foto dari galeri dengan judul album yang sama
+                                         $albumTitle = $galery->judul ?? ($galery->post ? $galery->post->judul : 'gallery_' . $galery->id);
+                                         $titleGaleries = $galeriesByTitle[$albumTitle] ?? collect();
+                                         $allPhotosInAlbum = collect();
+                                         foreach($titleGaleries as $titleGalery) {
+                                             foreach($titleGalery->fotos as $foto) {
+                                                 $allPhotosInAlbum->push($foto);
+                                             }
+                                         }
+                                     @endphp
+                                     @foreach($allPhotosInAlbum as $foto)
                                          '{{ \App\Helpers\ImageHelper::getImageUrl($foto->file) }}'{{ !$loop->last ? ',' : '' }}
                                      @endforeach
                                  ],
-                                 0
+                                 {{ $allPhotosInAlbum->search(function($foto) use ($galery) {
+                                     return $foto->id === $galery->fotos->first()->id;
+                                 }) ?: 0 }},
+                                 '{{ $galery->judul ?? ($galery->post ? $galery->post->judul : 'Gallery') }}',
+                                 '{{ ucfirst($galery->category) }}'
                              )"
                              @endif>
                             @if($galery->fotos->count() > 0)
@@ -2539,6 +2542,7 @@
                             @endif
                             <div class="gallery-label">
                                 <span>{{ Str::limit($galery->judul ?? ($galery->post ? $galery->post->judul : 'Gallery'), 20) }}</span>
+                                <span class="badge bg-primary ms-2" style="font-size: 0.7rem;">{{ ucfirst($galery->category) }}</span>
                             </div>
                         </div>
                     </div>
@@ -3571,6 +3575,39 @@
         
         <img id="viewImage" src="" alt="Preview" onclick="event.stopPropagation()">
         
+        <!-- Gallery Info (Title & Category) - Moved to Bottom -->
+        <div style="
+            position: absolute;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            max-width: 80%;
+        ">
+            <div id="galleryTitle" style="
+                background: rgba(255, 255, 255, 0.9);
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 8px;
+                display: none;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            "></div>
+            <div id="galleryCategory" style="
+                background: rgba(59, 130, 246, 0.9);
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: white;
+                display: none;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                margin-bottom: 8px;
+            "></div>
+        </div>
+        
         <!-- Image Counter -->
         <div id="imageCounter" style="
             position: absolute;
@@ -3608,7 +3645,7 @@
         });
 
         // Function to open image in fullscreen with gallery navigation
-        function openImageFullscreen(imageUrl, galleryImages = [], startIndex = 0) {
+        function openImageFullscreen(imageUrl, galleryImages = [], startIndex = 0, albumTitle = '', categoryName = '') {
             console.log('Opening fullscreen with', galleryImages.length, 'images');
             
             currentGalleryImages = galleryImages;
@@ -3617,6 +3654,18 @@
             document.getElementById('viewImage').src = imageUrl;
             document.getElementById('imgViewer').style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            
+            // Update title and category info
+            const titleElement = document.getElementById('galleryTitle');
+            const categoryElement = document.getElementById('galleryCategory');
+            if (titleElement && albumTitle) {
+                titleElement.textContent = albumTitle;
+                titleElement.style.display = 'block';
+            }
+            if (categoryElement && categoryName) {
+                categoryElement.textContent = 'Kategori: ' + categoryName;
+                categoryElement.style.display = 'block';
+            }
             
             // Show/hide navigation buttons
             const prevBtn = document.getElementById('prevBtn');

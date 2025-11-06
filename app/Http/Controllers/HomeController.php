@@ -11,10 +11,10 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // Ambil galeri yang aktif dengan foto (hanya kategori umum) dan filter duplikat judul
+        // Ambil galeri yang aktif dengan foto (kategori umum dan lingkungan_sekolah) dan filter duplikat judul
         $allGaleries = Galery::with(['post', 'fotos'])
             ->where('status', 1)
-            ->where('category', 'umum')
+            ->whereIn('category', ['umum', 'lingkungan_sekolah'])
             ->orderBy('position', 'asc')
             ->get();
         
@@ -34,10 +34,10 @@ class HomeController extends Controller
         // Ambil semua kategori
         $kategoris = Kategori::withCount('posts')->get();
 
-        // Ambil semua foto dikelompokkan berdasarkan judul album untuk carousel (hanya kategori umum)
+        // Ambil semua foto dikelompokkan berdasarkan judul album untuk carousel (kategori umum dan lingkungan_sekolah)
         $photosByAlbumTitle = Galery::with(['post', 'fotos'])
             ->where('status', 1)
-            ->where('category', 'umum')
+            ->whereIn('category', ['umum', 'lingkungan_sekolah'])
             ->get()
             ->groupBy(function ($item) {
                 return $item->judul ?? ($item->post ? $item->post->judul : 'gallery_' . $item->id);
@@ -50,6 +50,16 @@ class HomeController extends Controller
                 return $allPhotos;
             });
 
-        return view('home', compact('galeries', 'latestPosts', 'kategoris', 'photosByAlbumTitle'));
+        // Ambil semua galeri dengan foto, dikelompokkan berdasarkan judul album
+        $galeriesByTitle = Galery::with(['post', 'fotos'])
+            ->where('status', 1)
+            ->whereHas('fotos')
+            ->orderBy('position', 'asc')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->judul ?? ($item->post ? $item->post->judul : 'gallery_' . $item->id);
+            });
+
+        return view('home', compact('galeries', 'latestPosts', 'kategoris', 'photosByAlbumTitle', 'galeriesByTitle'));
     }
 }

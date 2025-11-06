@@ -373,9 +373,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('home') }}#about">Tentang</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">Login Admin</a>
-                    </li>
                 </ul>
             </div>
         </div>
