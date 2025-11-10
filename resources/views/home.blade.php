@@ -2389,6 +2389,200 @@
                         </div>
                     </div>
 
+                    <!-- User Activity Section -->
+                    <div class="row g-4 mt-4">
+                        <!-- Liked Photos Section -->
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title mb-4">
+                                        <i class="fas fa-heart text-danger me-2"></i>Foto yang Disukai
+                                    </h5>
+                                    @php
+                                        // Use same identifier as like system: 'user_' . user_id
+                                        $userIdentifier = 'user_' . session('user_id');
+                                        $likedPhotos = \App\Models\PhotoInteraction::where('ip_address', $userIdentifier)
+                                            ->where('type', 'like')
+                                            ->with(['foto.galery'])
+                                            ->latest()
+                                            ->get();
+                                        $totalLikes = $likedPhotos->count();
+                                        // Split into chunks of 4
+                                        $likedPhotosChunks = $likedPhotos->chunk(4);
+                                    @endphp
+                                    
+                                    <div class="mb-3">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Total foto yang disukai: <strong>{{ $totalLikes }}</strong>
+                                        </div>
+                                    </div>
+
+                                    @if($likedPhotos->count() > 0)
+                                        <!-- Carousel for Liked Photos -->
+                                        <div id="likedPhotosCarousel" class="carousel slide" data-bs-ride="false">
+                                            <div class="carousel-inner">
+                                                @foreach($likedPhotosChunks as $chunkIndex => $chunk)
+                                                    <div class="carousel-item {{ $chunkIndex === 0 ? 'active' : '' }}">
+                                                        <div class="list-group">
+                                                            @foreach($chunk as $interaction)
+                                                                @if($interaction->foto)
+                                                                    <div class="list-group-item list-group-item-action">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <img src="{{ asset('storage/galeri/' . $interaction->foto->file) }}" 
+                                                                                 alt="Liked Photo" 
+                                                                                 class="rounded me-3"
+                                                                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                                                                 onerror="this.src='{{ asset('images/no-image.png') }}'">
+                                                                            <div class="flex-grow-1">
+                                                                                <h6 class="mb-1">{{ $interaction->foto->judul }}</h6>
+                                                                                <small class="text-muted">
+                                                                                    <i class="fas fa-calendar me-1"></i>
+                                                                                    {{ $interaction->created_at->diffForHumans() }}
+                                                                                </small>
+                                                                            </div>
+                                                                            <a href="{{ route('galeri.public') }}#foto-{{ $interaction->foto->id }}" 
+                                                                               class="btn btn-sm btn-outline-primary">
+                                                                                <i class="fas fa-eye"></i>
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                            
+                                            <!-- Navigation Controls -->
+                                            @if($likedPhotosChunks->count() > 1)
+                                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-target="#likedPhotosCarousel" data-bs-slide="prev">
+                                                        <i class="fas fa-chevron-left"></i> Sebelumnya
+                                                    </button>
+                                                    <span class="text-muted small">
+                                                        <span id="likedCurrentPage">1</span> / {{ $likedPhotosChunks->count() }}
+                                                    </span>
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-target="#likedPhotosCarousel" data-bs-slide="next">
+                                                        Berikutnya <i class="fas fa-chevron-right"></i>
+                                                    </button>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="fas fa-heart-broken fa-3x mb-3 opacity-25"></i>
+                                            <p>Belum ada foto yang disukai</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Comments Section -->
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title mb-4">
+                                        <i class="fas fa-comments text-primary me-2"></i>Komentar Saya
+                                    </h5>
+                                    @php
+                                        $userComments = \App\Models\PhotoComment::where('email', $profileUser->email)
+                                            ->with(['foto.galery'])
+                                            ->latest()
+                                            ->get();
+                                        $totalComments = $userComments->count();
+                                        $approvedComments = \App\Models\PhotoComment::where('email', $profileUser->email)
+                                            ->where('is_approved', 1)
+                                            ->count();
+                                        // Split into chunks of 4
+                                        $userCommentsChunks = $userComments->chunk(4);
+                                    @endphp
+                                    
+                                    <div class="mb-3">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Total komentar: <strong>{{ $totalComments }}</strong> 
+                                            <span class="text-success">({{ $approvedComments }} disetujui)</span>
+                                        </div>
+                                    </div>
+
+                                    @if($userComments->count() > 0)
+                                        <!-- Carousel for User Comments -->
+                                        <div id="userCommentsCarousel" class="carousel slide" data-bs-ride="false">
+                                            <div class="carousel-inner">
+                                                @foreach($userCommentsChunks as $chunkIndex => $chunk)
+                                                    <div class="carousel-item {{ $chunkIndex === 0 ? 'active' : '' }}">
+                                                        <div class="list-group">
+                                                            @foreach($chunk as $comment)
+                                                                @if($comment->foto)
+                                                                    <div class="list-group-item {{ $comment->is_approved ? '' : 'bg-light' }}">
+                                                                        <div class="d-flex align-items-start">
+                                                                            <img src="{{ asset('storage/galeri/' . $comment->foto->file) }}" 
+                                                                                 alt="Photo" 
+                                                                                 class="rounded me-3"
+                                                                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                                                                 onerror="this.src='{{ asset('images/no-image.png') }}'">
+                                                                            <div class="flex-grow-1">
+                                                                                <h6 class="mb-1">{{ $comment->foto->judul }}</h6>
+                                                                                <p class="mb-2 text-muted small">{{ Str::limit($comment->comment, 100) }}</p>
+                                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                                    <small class="text-muted">
+                                                                                        <i class="fas fa-calendar me-1"></i>
+                                                                                        {{ $comment->created_at->diffForHumans() }}
+                                                                                    </small>
+                                                                                    <div>
+                                                                                        @if($comment->is_approved)
+                                                                                            <span class="badge bg-success">
+                                                                                                <i class="fas fa-check"></i> Disetujui
+                                                                                            </span>
+                                                                                        @else
+                                                                                            <span class="badge bg-warning">
+                                                                                                <i class="fas fa-clock"></i> Menunggu
+                                                                                            </span>
+                                                                                        @endif
+                                                                                        <a href="{{ route('galeri.public') }}#foto-{{ $comment->foto->id }}" 
+                                                                                           class="btn btn-sm btn-outline-primary ms-2">
+                                                                                            <i class="fas fa-eye"></i>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                            
+                                            <!-- Navigation Controls -->
+                                            @if($userCommentsChunks->count() > 1)
+                                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-target="#userCommentsCarousel" data-bs-slide="prev">
+                                                        <i class="fas fa-chevron-left"></i> Sebelumnya
+                                                    </button>
+                                                    <span class="text-muted small">
+                                                        <span id="commentsCurrentPage">1</span> / {{ $userCommentsChunks->count() }}
+                                                    </span>
+                                                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-target="#userCommentsCarousel" data-bs-slide="next">
+                                                        Berikutnya <i class="fas fa-chevron-right"></i>
+                                                    </button>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="fas fa-comment-slash fa-3x mb-3 opacity-25"></i>
+                                            <p>Belum ada komentar</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Back Button -->
                     <div class="mt-4 text-center">
                         <a href="{{ route('home') }}" class="btn btn-light btn-lg shadow">
@@ -3738,6 +3932,33 @@
         const style = document.createElement('style');
         style.textContent = '@keyframes fadeOut { from {opacity: 1;} to {opacity: 0;} }';
         document.head.appendChild(style);
+    </script>
+
+    <!-- Liked Photos & Comments Carousel Page Counter -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Liked Photos Carousel
+            const likedCarousel = document.getElementById('likedPhotosCarousel');
+            if (likedCarousel) {
+                likedCarousel.addEventListener('slide.bs.carousel', function(e) {
+                    const currentPageElement = document.getElementById('likedCurrentPage');
+                    if (currentPageElement) {
+                        currentPageElement.textContent = e.to + 1;
+                    }
+                });
+            }
+
+            // User Comments Carousel
+            const commentsCarousel = document.getElementById('userCommentsCarousel');
+            if (commentsCarousel) {
+                commentsCarousel.addEventListener('slide.bs.carousel', function(e) {
+                    const currentPageElement = document.getElementById('commentsCurrentPage');
+                    if (currentPageElement) {
+                        currentPageElement.textContent = e.to + 1;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

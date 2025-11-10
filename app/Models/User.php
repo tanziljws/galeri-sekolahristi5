@@ -54,4 +54,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(Post::class, 'user_id');
     }
+
+    /**
+     * Get the photo likes for the user based on IP address.
+     */
+    public function photoLikes()
+    {
+        return $this->hasMany(PhotoInteraction::class, 'ip_address', 'email')
+                    ->where('type', 'like');
+    }
+
+    /**
+     * Get the photo comments for the user based on email.
+     */
+    public function photoComments()
+    {
+        return $this->hasMany(PhotoComment::class, 'email', 'email')
+                    ->where('is_approved', 1);
+    }
 }
