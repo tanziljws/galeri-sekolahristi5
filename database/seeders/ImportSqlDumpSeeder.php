@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Message;
 use App\Models\PhotoInteraction;
 use App\Models\PhotoComment;
+use App\Models\Berita;
 use Carbon\Carbon;
 
 class ImportSqlDumpSeeder extends Seeder
@@ -35,6 +36,7 @@ class ImportSqlDumpSeeder extends Seeder
         $this->seedPetugas();
         $this->seedUsers();
         $this->seedPosts();
+        $this->seedBerita(); // Seed tabel berita dari posts
         $this->seedGalery();
         $this->seedFoto();
         $this->seedMessages();
@@ -60,7 +62,7 @@ class ImportSqlDumpSeeder extends Seeder
             'kategori' => 7,
             'petugas' => 3,
             'users' => 7,
-            'posts' => 3,
+            'posts' => 8,
             'galery' => 46,
             'foto' => 48,
             'messages' => 3,
@@ -200,11 +202,23 @@ class ImportSqlDumpSeeder extends Seeder
     {
         $this->command->info("Importing posts...");
         
+        // Get kategori IDs dynamically - use existing kategori from seeder
+        $kategoriGalery = Kategori::where('judul', 'Galeri Sekolah')->first();
+        $kategoriKegiatan = Kategori::where('judul', 'Kegiatan Sekolah')->first();
+        $kategoriPrestasi = Kategori::where('judul', 'Prestasi Siswa/Siswi')->first();
+        
+        // Use existing kategori IDs or fallback to IDs from SQL dump
+        // Kategori yang ada: 1=Prestasi, 2=Galeri Sekolah, 3=Transforkrab, 4=Ekstrakurikuler, 5=Kegiatan Sekolah, 6=Lingkungan Sekolah
+        $kategoriInfoId = $kategoriKegiatan ? $kategoriKegiatan->id : 5; // Use Kegiatan Sekolah for info
+        $kategoriGaleryId = $kategoriGalery ? $kategoriGalery->id : 2;
+        $kategoriAgendaId = $kategoriKegiatan ? $kategoriKegiatan->id : 5; // Use Kegiatan Sekolah for agenda
+        $kategoriPengumumanId = $kategoriKegiatan ? $kategoriKegiatan->id : 5; // Use Kegiatan Sekolah for pengumuman
+        
         $posts = [
             [
                 'id' => 1,
                 'judul' => 'TKA ( Tes Kemampuan Akademik )',
-                'kategori_id' => 2,
+                'kategori_id' => $kategoriInfoId,
                 'isi' => 'yang akan dilaksanakan di Lab SMK Negeri 4 Bogor Pada Hari Senin, 03 November 2025',
                 'petugas_id' => 1,
                 'status' => 'Published',
@@ -215,7 +229,7 @@ class ImportSqlDumpSeeder extends Seeder
             [
                 'id' => 2,
                 'judul' => 'SMKN 4 Bogor Siap Laksanakan Uji Kompetensi Keahlian (Ujikom) Tahun 2025',
-                'kategori_id' => 5,
+                'kategori_id' => $kategoriAgendaId,
                 'isi' => "SMKN 4 Bogor tengah bersiap menyelenggarakan Uji Kompetensi Keahlian (Ujikom) bagi siswa kelas XII yang akan dilaksanakan pada Senin, 17 November 2025.\r\nKegiatan ini menjadi ajang penting bagi siswa untuk menunjukkan kemampuan dan keterampilan mereka sesuai dengan bidang keahlian yang telah dipelajari selama tiga tahun.",
                 'petugas_id' => 1,
                 'status' => 'Published',
@@ -223,13 +237,270 @@ class ImportSqlDumpSeeder extends Seeder
                 'created_at' => Carbon::parse('2025-10-28 05:58:38'),
                 'updated_at' => Carbon::parse('2025-11-05 03:28:17'),
             ],
+            [
+                'id' => 3,
+                'judul' => 'Jadwal Ujian Semester Genap 2025',
+                'kategori_id' => $kategoriInfoId,
+                'isi' => "Berikut adalah jadwal ujian semester genap tahun ajaran 2024/2025 untuk semua jurusan:
+
+Senin, 20 Mei 2025:
+- 07:00 - 09:00: Matematika
+- 10:00 - 12:00: Bahasa Indonesia
+
+Selasa, 21 Mei 2025:
+- 07:00 - 09:00: Bahasa Inggris
+- 10:00 - 12:00: PPKN
+
+Rabu, 22 Mei 2025:
+- 07:00 - 09:00: Fisika/Kimia (sesuai jurusan)
+- 10:00 - 12:00: Sejarah
+
+Kamis, 23 Mei 2025:
+- 07:00 - 09:00: Mata Pelajaran Kejuruan
+- 10:00 - 12:00: Mata Pelajaran Kejuruan
+
+Jumat, 24 Mei 2025:
+- 07:00 - 09:00: Mata Pelajaran Kejuruan
+- 10:00 - 12:00: Mata Pelajaran Kejuruan
+
+Catatan:
+- Siswa wajib hadir 30 menit sebelum ujian dimulai
+- Membawa alat tulis dan kartu ujian
+- Dilarang membawa HP ke ruang ujian
+- Pakaian seragam sekolah lengkap",
+                'petugas_id' => 1,
+                'status' => 'Published',
+                'tanggal_jadwal' => '2025-05-20',
+                'created_at' => Carbon::parse('2025-10-15 10:00:00'),
+                'updated_at' => Carbon::parse('2025-10-15 10:00:00'),
+            ],
+            [
+                'id' => 4,
+                'judul' => 'Pengumuman Penerimaan Siswa Baru 2025/2026',
+                'kategori_id' => $kategoriPengumumanId,
+                'isi' => "SMK Negeri 4 Kota Bogor membuka pendaftaran siswa baru untuk tahun ajaran 2025/2026.
+
+JURUSAN YANG DIBUKA:
+1. Teknik Kendaraan Ringan Otomotif (TKRO)
+2. Teknik dan Bisnis Sepeda Motor (TBSM)
+3. Teknik Komputer dan Jaringan (TKJ)
+4. Rekayasa Perangkat Lunak (RPL)
+5. Akuntansi dan Keuangan Lembaga (AKL)
+6. Otomatisasi dan Tata Kelola Perkantoran (OTKP)
+
+PERSYARATAN PENDAFTARAN:
+- Lulusan SMP/MTs tahun 2025 atau sebelumnya
+- Usia maksimal 21 tahun pada 1 Juli 2025
+- Membawa fotokopi ijazah/surat keterangan lulus
+- Membawa fotokopi akta kelahiran
+- Membawa fotokopi KK
+- Membawa pas foto 3x4 (3 lembar)
+
+JADWAL PENDAFTARAN:
+- Gelombang 1: 1-15 Februari 2025
+- Gelombang 2: 16-28 Februari 2025
+- Gelombang 3: 1-15 Maret 2025
+
+BIAYA PENDAFTARAN:
+- Uang pendaftaran: Rp 200.000
+- Uang gedung: Rp 1.500.000
+- SPP bulanan: Rp 150.000
+
+Untuk informasi lebih lanjut, silakan hubungi panitia PPDB di sekolah atau melalui website resmi sekolah.",
+                'petugas_id' => 1,
+                'status' => 'Published',
+                'tanggal_jadwal' => '2025-02-01',
+                'created_at' => Carbon::parse('2025-10-20 09:00:00'),
+                'updated_at' => Carbon::parse('2025-10-20 09:00:00'),
+            ],
+            [
+                'id' => 5,
+                'judul' => 'Kunjungan Industri ke PT Astra Honda Motor',
+                'kategori_id' => $kategoriGaleryId,
+                'isi' => "Pada tanggal 15 Maret 2025, siswa kelas XI jurusan Teknik Kendaraan Ringan Otomotif (TKRO) dan Teknik dan Bisnis Sepeda Motor (TBSM) melakukan kunjungan industri ke PT Astra Honda Motor di Karawang, Jawa Barat.
+
+KUNJUNGAN INI BERTUJUAN UNTUK:
+- Memperluas wawasan siswa tentang dunia industri otomotif
+- Melihat langsung proses produksi sepeda motor Honda
+- Memahami standar kerja di industri otomotif
+- Menambah pengetahuan tentang teknologi terbaru
+
+AKTIVITAS SELAMA KUNJUNGAN:
+1. Presentasi tentang profil perusahaan
+2. Tour ke area produksi
+3. Demonstrasi teknologi terbaru
+4. Tanya jawab dengan tim produksi
+5. Foto bersama di area pabrik
+
+Siswa sangat antusias mengikuti kegiatan ini dan mendapatkan pengalaman berharga tentang dunia kerja yang sesungguhnya. Kunjungan ini merupakan bagian dari program prakerin (praktik kerja industri) yang akan dilaksanakan pada semester berikutnya.
+
+Terima kasih kepada PT Astra Honda Motor yang telah memberikan kesempatan kepada siswa SMK Negeri 4 Kota Bogor untuk melakukan kunjungan industri.",
+                'petugas_id' => 1,
+                'status' => 'Published',
+                'tanggal_jadwal' => '2025-03-15',
+                'created_at' => Carbon::parse('2025-10-25 14:00:00'),
+                'updated_at' => Carbon::parse('2025-10-25 14:00:00'),
+            ],
+            [
+                'id' => 6,
+                'judul' => 'Peringatan Hari Kemerdekaan RI ke-80',
+                'kategori_id' => $kategoriAgendaId,
+                'isi' => "SMK Negeri 4 Kota Bogor akan mengadakan berbagai kegiatan dalam rangka memperingati Hari Kemerdekaan Republik Indonesia ke-80.
+
+JADWAL KEGIATAN:
+
+17 Agustus 2025:
+- 07:00: Upacara Bendera di lapangan sekolah
+- 08:30: Pembacaan teks proklamasi
+- 09:00: Doa bersama untuk bangsa dan negara
+
+18-20 Agustus 2025:
+- Lomba-lomba antar kelas:
+  * Tarik tambang
+  * Balap karung
+  * Makan kerupuk
+  * Memasukkan paku ke dalam botol
+  * Estafet air
+  * Balap bakiak
+
+21 Agustus 2025:
+- Pentas seni dan budaya
+- Pameran hasil karya siswa
+- Bazar makanan tradisional
+
+22 Agustus 2025:
+- Upacara penutupan
+- Pembagian hadiah pemenang lomba
+- Pembagian bingkisan untuk guru dan karyawan
+
+TEMA KEGIATAN:
+'Bersatu Membangun Negeri, Maju Bersama SMK'
+
+Semua siswa wajib mengikuti kegiatan ini dengan pakaian seragam merah putih. Kegiatan ini bertujuan untuk menumbuhkan semangat nasionalisme dan persatuan bangsa.",
+                'petugas_id' => 1,
+                'status' => 'Published',
+                'tanggal_jadwal' => '2025-08-17',
+                'created_at' => Carbon::parse('2025-10-30 11:00:00'),
+                'updated_at' => Carbon::parse('2025-10-30 11:00:00'),
+            ],
+            [
+                'id' => 7,
+                'judul' => 'Praktikum Teknik Kendaraan Ringan',
+                'kategori_id' => $kategoriGaleryId,
+                'isi' => "Siswa kelas XII jurusan Teknik Kendaraan Ringan Otomotif (TKRO) sedang melakukan praktikum servis mesin sepeda motor di bengkel sekolah.
+
+PRAKTIKUM INI MELIPUTI:
+- Pemeriksaan dan perawatan mesin
+- Tune up mesin sepeda motor
+- Perbaikan sistem kelistrikan
+- Servis sistem rem
+- Perbaikan sistem suspensi
+
+FASILITAS BENGKEL SEKOLAH:
+- 10 unit sepeda motor untuk praktikum
+- Peralatan servis lengkap
+- Alat ukur dan diagnostic tools
+- Ruang praktikum yang luas dan nyaman
+- Guru pembimbing yang berpengalaman
+
+Siswa dibagi menjadi beberapa kelompok dan setiap kelompok mendapat bimbingan langsung dari guru pembimbing. Praktikum ini bertujuan untuk mempersiapkan siswa menghadapi ujian kompetensi keahlian dan dunia kerja.
+
+Hasil praktikum akan dinilai berdasarkan:
+- Ketepatan dalam melakukan servis
+- Waktu pengerjaan
+- Kebersihan dan kerapian kerja
+- Laporan praktikum",
+                'petugas_id' => 1,
+                'status' => 'Published',
+                'created_at' => Carbon::parse('2025-11-01 08:00:00'),
+                'updated_at' => Carbon::parse('2025-11-01 08:00:00'),
+            ],
+            [
+                'id' => 8,
+                'judul' => 'Workshop Teknologi Informasi untuk Guru',
+                'kategori_id' => $kategoriInfoId,
+                'isi' => "SMK Negeri 4 Kota Bogor mengadakan workshop teknologi informasi untuk seluruh guru pada tanggal 25 November 2025.
+
+WORKSHOP INI MEMBAHAS:
+- Penggunaan platform pembelajaran digital
+- Teknik membuat konten pembelajaran interaktif
+- Manajemen kelas online
+- Evaluasi pembelajaran berbasis digital
+- Integrasi teknologi dalam kurikulum
+
+PEMATERI:
+- Dr. Ahmad Fauzi, M.Kom (Pakar Teknologi Pendidikan)
+- Dra. Siti Nurhaliza, M.Pd (Praktisi E-Learning)
+
+TUJUAN WORKSHOP:
+- Meningkatkan kompetensi guru dalam penggunaan teknologi
+- Memperkaya metode pembelajaran
+- Meningkatkan kualitas pendidikan di sekolah
+
+Semua guru diwajibkan mengikuti workshop ini. Workshop akan dilaksanakan di ruang multimedia sekolah mulai pukul 08:00 - 16:00 WIB.",
+                'petugas_id' => 1,
+                'status' => 'Published',
+                'tanggal_jadwal' => '2025-11-25',
+                'created_at' => Carbon::parse('2025-11-05 10:00:00'),
+                'updated_at' => Carbon::parse('2025-11-05 10:00:00'),
+            ],
         ];
         
         foreach ($posts as $post) {
-            Post::updateOrCreate(
+            $createdPost = Post::updateOrCreate(
                 ['id' => $post['id']],
                 $post
             );
+            
+            // Buat galeri untuk setiap post jika belum ada
+            if (!$createdPost->galeries()->exists()) {
+                $galery = Galery::create([
+                    'post_id' => $createdPost->id,
+                    'judul' => $createdPost->judul,
+                    'position' => 0,
+                    'status' => 1,
+                    'category' => 'berita',
+                    'created_at' => $createdPost->created_at,
+                    'updated_at' => $createdPost->updated_at,
+                ]);
+                
+                // Tambahkan foto placeholder untuk setiap galeri
+                // Note: File foto fisik perlu diupload manual atau menggunakan gambar placeholder
+                Foto::create([
+                    'galery_id' => $galery->id,
+                    'file' => 'placeholder-berita.jpg', // Placeholder image
+                    'judul' => $createdPost->judul . ' - Foto 1',
+                    'created_at' => $createdPost->created_at,
+                    'updated_at' => $createdPost->updated_at,
+                ]);
+            }
+        }
+    }
+    
+    private function seedBerita(): void
+    {
+        $this->command->info("Importing berita...");
+        
+        // Copy data dari posts ke tabel berita jika tabel berita ada
+        if (Schema::hasTable('berita')) {
+            // Get all published posts
+            $posts = Post::where('status', 'Published')->get();
+            
+            foreach ($posts as $post) {
+                // Check if berita already exists
+                $existingBerita = DB::table('berita')->where('id', $post->id)->first();
+                
+                if (!$existingBerita) {
+                    // Insert into berita table
+                    // Note: Tabel berita hanya punya id, created_at, updated_at
+                    // Jadi kita hanya insert id dan timestamps
+                    DB::table('berita')->insert([
+                        'id' => $post->id,
+                        'created_at' => $post->created_at,
+                        'updated_at' => $post->updated_at,
+                    ]);
+                }
+            }
         }
     }
     

@@ -2,7 +2,11 @@
 
 ## Base URL
 ```
+# Development
 http://localhost:8000/api
+
+# Production (HTTPS)
+https://yourdomain.com/api
 ```
 
 ## Authentication
