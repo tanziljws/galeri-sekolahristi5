@@ -11,6 +11,16 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        // Jika sudah login sebagai admin, redirect ke dashboard
+        if (Session::has('is_logged_in')) {
+            return redirect()->route('dashboard');
+        }
+        
+        // Clear user session jika ada (untuk memastikan tidak ada konflik)
+        if (Session::has('user_type') && Session::get('user_type') === 'user') {
+            Session::forget(['user_id', 'user_name', 'user_email', 'user_type']);
+        }
+        
         return view('auth.login');
     }
 
@@ -24,7 +34,17 @@ class AuthController extends Controller
         $petugas = Petugas::where('username', $request->username)->first();
 
         if ($petugas && \Illuminate\Support\Facades\Hash::check($request->password, $petugas->password)) {
-            session(['is_logged_in' => true, 'user_id' => $petugas->id, 'username' => $petugas->username]);
+            // Clear user session jika ada (untuk memastikan tidak ada konflik)
+            Session::forget(['user_id', 'user_name', 'user_email', 'user_type']);
+            
+            // Set admin session
+            session([
+                'is_logged_in' => true, 
+                'user_id' => $petugas->id, 
+                'username' => $petugas->username,
+                'user_type' => 'admin' // Tambahkan user_type untuk membedakan admin dan user
+            ]);
+            
             return redirect()->route('dashboard')->with('success', 'Selamat datang, ' . $petugas->username . '!');
         }
 

@@ -59,6 +59,9 @@ class UserAuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
+            // Clear admin session jika ada (untuk memastikan tidak ada konflik)
+            \Illuminate\Support\Facades\Session::forget(['is_logged_in', 'username']);
+            
             session([
                 'user_id' => $user->id,
                 'user_name' => $user->name,

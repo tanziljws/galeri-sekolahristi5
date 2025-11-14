@@ -17,7 +17,8 @@ class CheckAuth
     public function handle(Request $request, Closure $next): Response
     {
         if (!Session::has('is_logged_in')) {
-            return redirect('/login')->with('error', 'Silakan login terlebih dahulu.');
+            // Redirect ke admin login page (/loginadmin)
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
         return $next($request);

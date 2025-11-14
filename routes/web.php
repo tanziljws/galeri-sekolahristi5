@@ -15,9 +15,13 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
 Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show');
 
-// Auth routes
+// Auth routes (Admin)
 Route::get('/loginadmin', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/loginadmin', [AuthController::class, 'login']);
+// Fallback route untuk /login agar redirect ke admin login
+Route::get('/login', function() {
+    return redirect('/loginadmin');
+});
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
