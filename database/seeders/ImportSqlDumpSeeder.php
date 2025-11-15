@@ -465,10 +465,24 @@ Semua guru diwajibkan mengikuti workshop ini. Workshop akan dilaksanakan di ruan
                 ]);
                 
                 // Tambahkan foto placeholder untuk setiap galeri
-                // Note: File foto fisik perlu diupload manual atau menggunakan gambar placeholder
+                // Gunakan placeholder.jpg yang sudah ada, atau gunakan gambar dari galeri jika ada
+                $placeholderFile = 'placeholder.jpg';
+                
+                // Cek apakah ada gambar di galeri yang bisa digunakan
+                $availableImages = ['upacara_bendera_1.jpg', 'p5.JPG', 'IMG_0167.JPG', 'sidang pkl.JPG'];
+                $imageToUse = $placeholderFile; // Default ke placeholder
+                
+                // Gunakan gambar yang berbeda untuk setiap berita (rotasi)
+                $imageIndex = ($createdPost->id - 1) % count($availableImages);
+                if (file_exists(public_path('images/galeri/' . $availableImages[$imageIndex]))) {
+                    $imageToUse = $availableImages[$imageIndex];
+                } elseif (file_exists(public_path('images/' . $placeholderFile))) {
+                    $imageToUse = $placeholderFile;
+                }
+                
                 Foto::create([
                     'galery_id' => $galery->id,
-                    'file' => 'placeholder-berita.jpg', // Placeholder image
+                    'file' => $imageToUse,
                     'judul' => $createdPost->judul . ' - Foto 1',
                     'created_at' => $createdPost->created_at,
                     'updated_at' => $createdPost->updated_at,

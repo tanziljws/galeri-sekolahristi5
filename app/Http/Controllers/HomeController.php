@@ -24,7 +24,7 @@ class HomeController extends Controller
         });
 
         // Ambil post terbaru (kecuali yang berasal dari galeri)
-        $latestPosts = Post::with(['kategori', 'petugas'])
+        $latestPosts = Post::with(['kategori', 'petugas', 'galeries.fotos'])
             ->where('status', 'Published')
             ->where('isi', 'not like', 'Album foto:%')
             ->orderBy('created_at', 'desc')

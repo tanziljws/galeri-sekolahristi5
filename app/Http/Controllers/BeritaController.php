@@ -10,7 +10,7 @@ class BeritaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with(['kategori', 'petugas'])
+        $query = Post::with(['kategori', 'petugas', 'galeries.fotos'])
             ->whereIn('status', ['Published', 'published'])
             ->where('isi', 'not like', 'Album foto:%')
             ->orderBy('created_at', 'desc');
@@ -46,8 +46,9 @@ class BeritaController extends Controller
 
     public function show($id)
     {
-        $post = Post::with(['kategori', 'petugas'])->findOrFail($id);
-        $latest = Post::where('status', 'Published')
+        $post = Post::with(['kategori', 'petugas', 'galeries.fotos'])->findOrFail($id);
+        $latest = Post::with(['galeries.fotos'])
+            ->where('status', 'Published')
             ->where('isi', 'not like', 'Album foto:%')
             ->orderBy('created_at', 'desc')
             ->take(5)

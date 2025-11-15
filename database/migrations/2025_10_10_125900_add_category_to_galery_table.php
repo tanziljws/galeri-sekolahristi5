@@ -22,7 +22,7 @@ return new class extends Migration
                 if ($driver === 'sqlite') {
                     $table->string('category', 50)->nullable();
                 } else {
-                    $table->string('category', 50)->nullable()->after('status');
+                $table->string('category', 50)->nullable()->after('status');
                 }
             });
         } else {
@@ -45,7 +45,7 @@ return new class extends Migration
         
         // Set default value for existing records that might be null
         try {
-            DB::table('galery')->whereNull('category')->update(['category' => 'umum']);
+        DB::table('galery')->whereNull('category')->update(['category' => 'umum']);
         } catch (\Exception $e) {
             // Ignore if update fails
         }
